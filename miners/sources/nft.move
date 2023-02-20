@@ -64,3 +64,27 @@ module mini_miners::mine_nft {
     public fun quality(mine: &Mine): u64 {
         mine.quality
     }
+
+    #[test]
+    public fun test_mint() {
+        use sui::tx_context;
+
+        let ctx = tx_context::dummy();
+
+        // generation and quality
+        let g: u64 = 0;
+        let q: u64 = 1;
+        let id = object::new(&mut ctx);
+
+        let mine = Mine {
+            id: id,
+            generation: g,
+            quality: q,
+        };
+
+        assert!(generation(&mine) == g && quality(&mine) == q, 1);
+
+        transfer::transfer(mine, tx_context::sender(&mut ctx));
+    }
+}
+
