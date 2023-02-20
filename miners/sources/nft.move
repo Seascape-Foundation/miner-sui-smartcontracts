@@ -33,10 +33,12 @@ module mini_miners::mine_nft {
             id: object::new(ctx),
             permissioned: true,
         };
+        // smartcontracts could be minted by the owner
         transfer::transfer(minter, tx_context::sender(ctx))
     }
 
-    public fun mint(factory: &Factory, to: address, generation: u64, quality: u64, ctx: &mut TxContext) {
+    // mint a new nft
+    public entry fun mint(factory: &Factory, to: address, generation: u64, quality: u64, ctx: &mut TxContext) {
         assert!(factory.permissioned == true, ENotFactory);
 
         let mine = Mine {
@@ -47,4 +49,18 @@ module mini_miners::mine_nft {
 
         transfer::transfer(mine, to);
     }
-}
+
+    // transfer minted nft
+    public entry fun transfer(mine: Mine, recipient: address, _ctx: &mut TxContext) {
+        use sui::transfer;
+        // transfer the MineNFT
+        transfer::transfer(mine, recipient);
+    }
+
+    public fun generation(mine: &Mine): u64 {
+        mine.generation
+    }
+    
+    public fun quality(mine: &Mine): u64 {
+        mine.quality
+    }
