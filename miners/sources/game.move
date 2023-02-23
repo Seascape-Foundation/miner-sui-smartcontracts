@@ -48,6 +48,17 @@ module mini_miners::game {
         gold_amount: u64,
     }
 
+    struct NftImported has copy, drop {
+        nft_id: ID,
+        owner: address,
+    }
+
+    struct NftExported has copy, drop {
+        nft_id: ID,
+        owner: address,
+    }
+
+
     // Upon deployment, we create a shared nonce
     fun init(ctx: &mut TxContext) {
         let game = Game {
@@ -90,6 +101,8 @@ module mini_miners::game {
 
         dynamic_object_field::add(&mut params.id, true, item);
         dynamic_object_field::add(&mut game.id, item_id, params);
+
+        event::emit(NftImported{nft_id: item_id, owner: tx_context::sender(ctx)});
     }
 
     // Export the nft back to the user.
@@ -119,6 +132,8 @@ module mini_miners::game {
     ) {
         let item = export_nft<T>(game, item_id, ctx);
         transfer::transfer(item, tx_context::sender(ctx));
+
+        event::emit(NftExported{nft_id: item_id, owner: tx_context::sender(ctx)});
     }
 
     /////////////////////////////////////////////////////////////////////
