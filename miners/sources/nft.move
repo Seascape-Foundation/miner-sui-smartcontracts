@@ -107,6 +107,8 @@ module mini_miners::mine_nft {
     #[test]
     public fun test_mint() {
         use sui::tx_context;
+        use sui::url::{Self};
+        use std::string;
 
         let ctx = tx_context::dummy();
 
@@ -119,6 +121,9 @@ module mini_miners::mine_nft {
             id: id,
             generation: g,
             quality: q,
+            description: string::utf8(b""),
+            name: string::utf8(b""),
+            url: url::new_unsafe_from_bytes(b""),
         };
 
         assert!(generation(&mine) == g && quality(&mine) == q, 1);
