@@ -154,7 +154,7 @@ module mini_miners::game {
 
     // todo add signature verification
     // with the signature we avoid duplicate data transfer
-    public entry fun sell_gold<COIN>(game: &mut Game, player_balance: &mut Coin<COIN>, token_amount: u64, pack_id: u8, ctx: &mut TxContext) {
+    public entry fun sell_gold<COIN>(game: &mut Game, token_amount: u64, pack_id: u8, ctx: &mut TxContext) {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
 
