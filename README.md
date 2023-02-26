@@ -22,17 +22,17 @@ Deployer:
 [0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2]
 (https://explorer.sui.io/address/0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2)
 
-Transaction Hash: *MiniMiners package deployment* [G1n5Y3gXeEbMKPNgCwhJAUGUS6sNTAiPDpnxegZcwwTJ](https://explorer.sui.io/transaction/G1n5Y3gXeEbMKPNgCwhJAUGUS6sNTAiPDpnxegZcwwTJ)
+Transaction Hash: *MiniMiners package deployment* [7Pms3Um6kVydeBDp1SQ5iszVTfdq4b6PeYdHzhYS9rQV](https://explorer.sui.io/transaction/7Pms3Um6kVydeBDp1SQ5iszVTfdq4b6PeYdHzhYS9rQV)
 
-MiniMiners package: *Keeps MineNFT, Game smartcontracts as its modules* [	0xf9910dff8ee763b7160b16330ce8f55676896626](https://explorer.sui.io/object/	0xf9910dff8ee763b7160b16330ce8f55676896626)
+MiniMiners package: *Keeps MineNFT, Game smartcontracts as its modules* [0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62](https://explorer.sui.io/object/0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62)
 
-MineNFT Factory: *used to mint MineNFT*[		0x36f95f9b509ede8bccb099c43ccc0c66c5658ac9](https://explorer.sui.io/object/		0x36f95f9b509ede8bccb099c43ccc0c66c5658ac9)
+MineNFT Factory: *used to mint MineNFT*[0x53432da377abc8b5804d9c7c0ff6a01a941aeb70](https://explorer.sui.io/object/0x53432da377abc8b5804d9c7c0ff6a01a941aeb70)
 
 MineNFT type:
-		0xf9910dff8ee763b7160b16330ce8f55676896626::mine_nft::Mine
+		0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62::mine_nft::Mine
 
 Game object: *used to manage Game module*
-[0xf86ae877a409fe2a5d10b150ba45cc1907a8576f](https://explorer.sui.io/object/0xf86ae877a409fe2a5d10b150ba45cc1907a8576f)
+[0x1798b2bbe3db25d746cffa8a343f0840c85a99d8](https://explorer.sui.io/object/0x1798b2bbe3db25d746cffa8a343f0840c85a99d8)
 
 ### Scripts
 
@@ -64,7 +64,7 @@ sui move build
 ####Publish the smartcontracts**
 
 ```powershell
-sui client publish --gas-budget 3000 --dev --doc --abi
+sui client publish --gas-budget 3000 --dev --doc --abi 
 ```
 
 *If it shows an error `Multiple source verification errors found:`*
@@ -102,9 +102,9 @@ In the repository of the sync bot, update the `config/config.json`
 sui client call `
  --function mint `
  --module mine_nft `
- --package 0xf9910dff8ee763b7160b16330ce8f55676896626 ` --gas-budget 1000 `
+ --package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 ` --gas-budget 1000 `
  --args `
-  		0x36f95f9b509ede8bccb099c43ccc0c66c5658ac9 `
+  		0x53432da377abc8b5804d9c7c0ff6a01a941aeb70 `
   0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2 `
   2 `
   3
@@ -136,12 +136,12 @@ in the smartcontract
 sui client call `
 --function transfer_token `
 --module game `
---package 0xf9910dff8ee763b7160b16330ce8f55676896626 `
+--package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
-  0xf86ae877a409fe2a5d10b150ba45cc1907a8576f `
-  0x086f1893d60ff25dd0e1d95101700c28980a2865
+  0x1798b2bbe3db25d746cffa8a343f0840c85a99d8 `
+  0x5e65827ec1c3f391d543c53d702f4377e8f30a18
 ```
 
 Type argument of the coin is `0x2::sui::SUI`.
@@ -160,11 +160,11 @@ Lets test selling `1500000` of gold for 0.1 SUI.
 sui client call `
 --function sell_gold `
 --module game `
---package 0xf9910dff8ee763b7160b16330ce8f55676896626 `
+--package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
-  0xf86ae877a409fe2a5d10b150ba45cc1907a8576f `
+  0x1798b2bbe3db25d746cffa8a343f0840c85a99d8 `
   0x4f44f0122e3577acdcacae1f1e44a1ef8a036a29 `
   9991804 `
   101
@@ -193,11 +193,11 @@ Let's test purchasing `Diamonds` for `0.002 SUI`.
 sui client call `
 --function buy_pack `
 --module game `
---package 0xf9910dff8ee763b7160b16330ce8f55676896626 `
+--package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
-  0xf86ae877a409fe2a5d10b150ba45cc1907a8576f `
+  0x1798b2bbe3db25d746cffa8a343f0840c85a99d8 `
   0x4f44f0122e3577acdcacae1f1e44a1ef8a036a29 ` 
   1
 ```
@@ -227,17 +227,17 @@ Then use the created object for buying pack.
 
 ---
 
-Withdraw the collected fees from smartcontract as the owner
+#### Withdraw the collected fees from smartcontract as the owner
 
 ```powershell
 sui client call `
 --function withdraw_and_keep `
 --module game `
---package 0xf9910dff8ee763b7160b16330ce8f55676896626 `
+--package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
-  0xf86ae877a409fe2a5d10b150ba45cc1907a8576f `
+  0x1798b2bbe3db25d746cffa8a343f0840c85a99d8 `
   0x13158b22e6adcd12b85c5ed9d9f07d9d64a6ba0c
 ```
 
