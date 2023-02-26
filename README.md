@@ -198,7 +198,8 @@ sui client call `
 --type-args 0x2::sui::SUI `
 --args `
   0xf86ae877a409fe2a5d10b150ba45cc1907a8576f `
-  0x4f44f0122e3577acdcacae1f1e44a1ef8a036a29 ` 1
+  0x4f44f0122e3577acdcacae1f1e44a1ef8a036a29 ` 
+  1
 ```
 > Do not pass the first SUI object as the function argument. That object is used by that wallet to pay for transaction fee.
 
