@@ -168,7 +168,7 @@ module mini_miners::game {
             ctx
         );
 
-        coin::join(player_balance, borrowed_coin);
+        transfer::transfer(borrowed_coin, player);
 
         event::emit(SellGold{player, token_amount, gold_id: pack_id})
     }
@@ -178,7 +178,7 @@ module mini_miners::game {
     public entry fun buy_pack<COIN>(game: &mut Game, paid: Coin<COIN>, pack_id: u8, ctx: &mut TxContext) {
         let token_amount = coin::value(&paid);
 
-        dynamic_object_field::add<u8, Coin<COIN>>(&mut game.id, 0x01, paid);
+        transfer::transfer(paid, game.collector);
 
         let player = tx_context::sender(ctx);
 
