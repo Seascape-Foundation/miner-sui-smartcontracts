@@ -40,7 +40,7 @@ module mini_miners::game {
     struct SellGold has copy, drop {
         player: address,
         token_amount: u64,
-        gold_amount: u64,
+        gold_id: u8,
     }
 
     struct BuyPack has copy, drop {
@@ -154,14 +154,13 @@ module mini_miners::game {
 
     // todo add signature verification
     // with the signature we avoid duplicate data transfer
-    public entry fun sell_gold<COIN>(game: &mut Game, player_balance: &mut Coin<COIN>, gold_amount: u64, ctx: &mut TxContext) {
+    public entry fun sell_gold<COIN>(game: &mut Game, player_balance: &mut Coin<COIN>, token_amount: u64, pack_id: u8, ctx: &mut TxContext) {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
 
         assert!(dynamic_object_field::exists_<address>(&game.id, collector), ENotEnoughFunds);
 
         game.nonce = game.nonce + 1;
-        let token_amount = gold_amount / game.ratio;
 
         let borrowed_coin = coin::split(
             dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, collector),
@@ -171,7 +170,7 @@ module mini_miners::game {
 
         coin::join(player_balance, borrowed_coin);
 
-        event::emit(SellGold{player, token_amount, gold_amount})
+        event::emit(SellGold{player, token_amount, gold_id: pack_id})
     }
 
     // Buy a resource pack or diamond pack
@@ -259,7 +258,8 @@ module mini_miners::game {
         test_scenario::next_tx(scenario, player);
         {
             let game_wrapper = test_scenario::take_shared<Game>(scenario); 
-            let gold_amount = 20_000_000; // 0.1 SUI
+            let token_amount = 2; // 0.1 SUI
+            let gold_id = 1;
             
             let player_pre_coin = test_scenario::take_from_sender<Coin<SUI>>(scenario);
             let pre_balance = coin::value(&player_pre_coin);
@@ -269,7 +269,7 @@ module mini_miners::game {
             let collector_pre_balance = coin::value(&collector_pre_coin);
             debug::print(&collector_pre_balance);
 
-            sell_gold(&mut game_wrapper, &mut player_pre_coin, gold_amount, test_scenario::ctx(scenario));
+            sell_gold(&mut game_wrapper, &mut player_pre_coin, token_amount, gold_id, test_scenario::ctx(scenario));
             
             test_scenario::return_shared(game_wrapper);
 
