@@ -149,7 +149,14 @@ module mini_miners::game {
         let sender = tx_context::sender(ctx);
         assert!(sender == game.collector, ENotOwner);
 
-        dynamic_object_field::add<address, Coin<COIN>>(&mut game.id, sender, paid);
+        if (dynamic_object_field::exists_<address>(&game.id, sender)) {
+            coin::join(
+                dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, sender),
+                paid
+            )
+        } else {
+            dynamic_object_field::add<address, Coin<COIN>>(&mut game.id, sender, paid);
+        }
     }
 
     // todo add signature verification
