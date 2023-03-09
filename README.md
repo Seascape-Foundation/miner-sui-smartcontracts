@@ -15,24 +15,16 @@ The list of references used in the writing of these smartcontracts:
 * https://github.com/move-language/move/tree/main/language/documentation/tutorial &ndash; official tutorial on move programming language.
 * https://github.com/MystenLabs/awesome-move#move-powered-blockchains &ndash; list of useful recource collection related to Move programming language.
 
-## v0.0.1
-DevNet deployed smartcontract:
+## Deployed Addresses
 
-Deployer:
-[0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2]
-(https://explorer.sui.io/address/0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2)
-
-Transaction Hash: *MiniMiners package deployment* [7Pms3Um6kVydeBDp1SQ5iszVTfdq4b6PeYdHzhYS9rQV](https://explorer.sui.io/transaction/7Pms3Um6kVydeBDp1SQ5iszVTfdq4b6PeYdHzhYS9rQV)
-
-MiniMiners package: *Keeps MineNFT, Game smartcontracts as its modules* [0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62](https://explorer.sui.io/object/0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62)
-
-MineNFT Factory: *used to mint MineNFT*[0x53432da377abc8b5804d9c7c0ff6a01a941aeb70](https://explorer.sui.io/object/0x53432da377abc8b5804d9c7c0ff6a01a941aeb70)
-
-MineNFT type:
-		0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62::mine_nft::Mine
-
-Game object: *used to manage Game module*
-[0x1798b2bbe3db25d746cffa8a343f0840c85a99d8](https://explorer.sui.io/object/0x1798b2bbe3db25d746cffa8a343f0840c85a99d8)
+| Adress    | Type |  Description |
+| -----------|---- | ----------- |
+| [0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2]((https://explorer.sui.io/address/0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2))    | Address  | *Deployer Account*       |
+| [vqjPHGoUfCVKYFdeVc9Li41SseBSChwvqaecrAmzuw3](https://explorer.sui.io/transaction/vqjPHGoUfCVKYFdeVc9Li41SseBSChwvqaecrAmzuw3)   | Hash     | *Transaction Hash*        |
+| [0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56](https://explorer.sui.io/object/0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56)     | Package  | *MiniMiners package with MineNFT, Game modules* |
+| [0x68cd72eb93b5894af90edc84591cf43c0c4d4c1d](https://explorer.sui.io/object/0x68cd72eb93b5894af90edc84591cf43c0c4d4c1d)     | Object   | *NFT Manager that has minter address* |
+| `<package>::mine_nft::Mine`                     | ObjectType | *Mine NFT type* |
+| [0x5fe47ccb7009893bde9b5ffdc112881036125c96](https://explorer.sui.io/object/0x5fe47ccb7009893bde9b5ffdc112881036125c96) | Object | *Game object to work with Game module* |
 
 ### Scripts
 
