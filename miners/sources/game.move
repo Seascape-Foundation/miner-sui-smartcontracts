@@ -8,13 +8,17 @@ module mini_miners::game {
     // use mini_miners::verifier;
     // use std::vector;
     use sui::transfer;
+    use sui::bcs;
     use sui::tx_context::{Self, TxContext};
     use sui::coin::{Self, Coin};
     use sui::event;
+    use sui::hash;
 
     const ENotOwner: u64 = 1;
     const EAmountIncorrect: u64 = 2;
     const ENotEnoughFunds: u64 = 3;
+
+    const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
 
     struct PlayerParams has key, store {
         id: UID,
@@ -28,6 +32,14 @@ module mini_miners::game {
         id: UID,
         collector: address,
         ratio: u64,
+    }
+
+    #[derive(Serialize)]
+    struct ImportNftMessage has drop {
+        prefix: vector<u8>,
+        nft_id: ID,
+        owner: address,
+        timestamp: u64,
     }
 
     //////////////////////////////////////////////////////////////
@@ -85,17 +97,28 @@ module mini_miners::game {
     //
     // todo make sure that nft is whitelisted
     public entry fun import_nft<T: key + store>(game: &mut Game, item: T, timestamp: u64, ctx: &mut TxContext) {
-        let item_id = object::id(&item);
+        let nft_id = object::id(&item);
+        let sender = tx_context::sender(ctx);
+        
+        let import_nft_message = ImportNftMessage {
+            prefix: IMPORT_NFT_PREFIX,
+            nft_id: nft_id,
+            owner: sender,
+            timestamp: timestamp,
+        };
+        let import_nft_bytes = bcs::to_bytes(&import_nft_message);
+        let import_nft_hash = hash::keccak256(&import_nft_bytes);
+        
         let params = PlayerParams {
             id: object::new(ctx),
-            owner: tx_context::sender(ctx),
+            owner: sender,
             stake_time: timestamp,
         };
 
         dynamic_object_field::add(&mut params.id, true, item);
-        dynamic_object_field::add(&mut game.id, item_id, params);
+        dynamic_object_field::add(&mut game.id, nft_id, params);
 
-        event::emit(NftImported{nft_id: item_id, owner: tx_context::sender(ctx)});
+        event::emit(NftImported{nft_id: nft_id, owner: sender});
     }
 
     // Export the nft back to the user.
