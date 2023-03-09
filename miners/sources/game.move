@@ -78,12 +78,18 @@ module mini_miners::game {
 
     // Upon deployment, we create a shared nonce
     fun init(ctx: &mut TxContext) {
+        let owner = tx_context::sender(ctx);
+        let ratio = 10_000_000; // 10 million golds to 1 Crypto coin
         let game = Game {
             id: object::new(ctx),
             ratio: 10_000_000, // 10 million golds to 1 Crypto coin
             collector: tx_context::sender(ctx),
+            collector: owner,
         };
         transfer::share_object(game);
+
+        event::emit(SetCollector {recepient: owner});
+        event::emit(SetRatio {ratio: ratio});
     }
 
     //////////////////////////////////////////////////////////////////
