@@ -183,7 +183,7 @@ module mini_miners::game {
         let sender = tx_context::sender(ctx);
         assert!(sender == game.collector, ENotOwner);
 
-        if (dynamic_object_field::exists_<address>(&game.id, sender)) {
+        if (dynamic_object_field::exists_with_type<address, Coin<COIN>>(&game.id, sender)) {
             coin::join(
                 dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, sender),
                 paid
@@ -223,7 +223,6 @@ module mini_miners::game {
 
         event::emit(BuyPack{player, token_amount, pack_id})
     }
-
     
     /////////////////////////////////////////////////////////////////////
     //
@@ -231,19 +230,6 @@ module mini_miners::game {
     //
     /////////////////////////////////////////////////////////////////////
 
-
-    /// Call [`take_profits`] and transfer Coin to the sender.
-    public entry fun withdraw_and_keep<COIN>(
-        game: &mut Game,
-        collector_balance: &mut Coin<COIN>,
-        ctx: &mut TxContext
-    ) {
-        let sender = tx_context::sender(ctx);
-        assert!(sender == game.collector, ENotOwner);
-        let claimable_amount = dynamic_object_field::remove<u8, Coin<COIN>>(&mut game.id, 0x01);
-
-        coin::join(collector_balance, claimable_amount);
-    }
 
     public entry fun transfer_ownership(game: &mut Game, recepient: address, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
