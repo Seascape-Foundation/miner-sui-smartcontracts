@@ -104,6 +104,29 @@ module mini_miners::mine_nft {
         transfer::transfer(mine, recipient);
     }
 
+    #[test_only]
+    public fun mint_test(ctx: &mut TxContext): Mine {
+        let id = object::new(ctx);
+        let g: u64 = 0;
+        let q: u64 = 1;
+
+        let mine = Mine {
+            id: id,
+            generation: g,
+            quality: q,
+            name: string::utf8(b""),
+            url: url::new_unsafe_from_bytes(b""),
+        };
+
+        mine
+    }
+
+    #[test_only]
+    public fun burn_test(mine: Mine, _ctx: &mut TxContext) {
+        let Mine { id, generation: _, quality: _, name: _, url: _ } = mine;
+        object::delete(id);
+    }
+
     // transfer ownership over the nft management
     public entry fun transfer_ownership(management: Management, recipient: address, _ctx: &mut TxContext) {
         transfer::transfer(management, recipient);
