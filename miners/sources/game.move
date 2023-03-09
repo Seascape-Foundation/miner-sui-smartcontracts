@@ -19,6 +19,7 @@ module mini_miners::game {
     const ESigFail: u64 = 4;
 
     const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
+    const SELL_GOLD_PREFIX: vector<u8> = b"sell_miner_gold";
 
     struct PlayerParams has key, store {
         id: UID,
@@ -37,6 +38,16 @@ module mini_miners::game {
     struct ImportNftMessage has drop {
         prefix: vector<u8>,
         nft_id: ID,
+        owner: address,
+        timestamp: u64,
+    }
+
+    #[derive(Serialize)]
+    struct SellGoldMessage has drop {
+        prefix: vector<u8>,
+        token_amount: u64,
+        pack_id: u8,
+        game: address,
         owner: address,
         timestamp: u64,
     }
@@ -185,11 +196,23 @@ module mini_miners::game {
         }
     }
 
-    // todo add signature verification
-    // with the signature we avoid duplicate data transfer
-    public entry fun sell_gold<COIN>(game: &mut Game, token_amount: u64, pack_id: u8, ctx: &mut TxContext) {
+    // User sells the in-game currency in exchange for COIN.
+    public entry fun sell_gold<COIN>(game: &mut Game, token_amount: u64, pack_id: u8, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext) {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
+
+        let sell_gold_message = SellGoldMessage {
+            prefix: SELL_GOLD_PREFIX,
+            token_amount: token_amount,
+            pack_id: pack_id,
+            game: object::id_address(game),
+            owner: player,
+            timestamp: timestamp,
+        };
+        let message_bytes = bcs::to_bytes(&sell_gold_message);
+        let message_hash = hash::keccak256(&message_bytes);
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_hash);
+        assert!(game.verifier == recovered_address, ESigFail);
 
         assert!(dynamic_object_field::exists_<address>(&game.id, collector), ENotEnoughFunds);
 
