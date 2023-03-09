@@ -28,6 +28,7 @@ module mini_miners::game {
 
     struct Game has key {
         id: UID,
+        owner: address,
         collector: address,
         ratio: u64,
     }
@@ -68,6 +69,10 @@ module mini_miners::game {
         owner: address,
     }
 
+    struct TransferOwnership has copy, drop {
+        recepient: address,
+    }
+
     struct SetCollector has copy, drop {
         recepient: address,
     }
@@ -82,8 +87,8 @@ module mini_miners::game {
         let ratio = 10_000_000; // 10 million golds to 1 Crypto coin
         let game = Game {
             id: object::new(ctx),
-            ratio: 10_000_000, // 10 million golds to 1 Crypto coin
-            collector: tx_context::sender(ctx),
+            ratio: ratio,
+            owner: owner,
             collector: owner,
         };
         transfer::share_object(game);
@@ -235,6 +240,14 @@ module mini_miners::game {
         let claimable_amount = dynamic_object_field::remove<u8, Coin<COIN>>(&mut game.id, 0x01);
 
         coin::join(collector_balance, claimable_amount);
+    }
+
+    public entry fun transfer_ownership(game: &mut Game, recepient: address, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(sender == game.owner, ENotOwner);
+        game.owner = recepient;
+
+        event::emit(TransferOwnership {recepient: recepient});
     }
 
     // Update the fee collector
