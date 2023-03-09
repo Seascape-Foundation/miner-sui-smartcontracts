@@ -20,6 +20,7 @@ module mini_miners::game {
 
     const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
     const SELL_GOLD_PREFIX: vector<u8> = b"sell_miner_gold";
+    const BUY_PACK_PREFIX: vector<u8> = b"buy_miner_pack";
 
     struct PlayerParams has key, store {
         id: UID,
@@ -43,7 +44,7 @@ module mini_miners::game {
     }
 
     #[derive(Serialize)]
-    struct SellGoldMessage has drop {
+    struct PackMessage has drop {
         prefix: vector<u8>,
         token_amount: u64,
         pack_id: u8,
@@ -201,7 +202,7 @@ module mini_miners::game {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
 
-        let sell_gold_message = SellGoldMessage {
+        let sell_gold_message = PackMessage {
             prefix: SELL_GOLD_PREFIX,
             token_amount: token_amount,
             pack_id: pack_id,
@@ -229,8 +230,22 @@ module mini_miners::game {
 
     // Buy a resource pack or diamond pack
     // todo change the pack_id to the to resource type.
-    public entry fun buy_pack<COIN>(game: &mut Game, paid: Coin<COIN>, pack_id: u8, ctx: &mut TxContext) {
+    public entry fun buy_pack<COIN>(game: &mut Game, paid: Coin<COIN>, pack_id: u8, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext) {
         let token_amount = coin::value(&paid);
+        let player = tx_context::sender(ctx);
+
+        let sell_gold_message = PackMessage {
+            prefix: BUY_PACK_PREFIX,
+            token_amount: token_amount,
+            pack_id: pack_id,
+            game: object::id_address(game),
+            owner: player,
+            timestamp: timestamp,
+        };
+        let message_bytes = bcs::to_bytes(&sell_gold_message);
+        let message_hash = hash::keccak256(&message_bytes);
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_hash);
+        assert!(game.verifier == recovered_address, ESigFail);
 
         transfer::transfer(paid, game.collector);
 
