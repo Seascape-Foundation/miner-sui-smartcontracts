@@ -250,15 +250,20 @@ module mini_miners::game {
         event::emit(TransferOwnership {recepient: recepient});
     }
 
+
     // Update the fee collector
-    public entry fun set_collector(game: &mut Game, recepient: address, _ctx: &mut TxContext) {
+    public entry fun set_collector(game: &mut Game, recepient: address, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(sender == game.owner, ENotOwner);
         game.collector = recepient;
 
         event::emit(SetCollector {recepient: recepient});
     }
 
     // Update the ratio of the gold to in-game currency
-    public entry fun set_ratio(game: &mut Game, ratio: u64, _ctx: &mut TxContext) {
+    public entry fun set_ratio(game: &mut Game, ratio: u64, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(sender == game.owner, ENotOwner);
         game.ratio = ratio;
 
         event::emit(SetRatio {ratio: ratio});
