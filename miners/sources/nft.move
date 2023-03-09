@@ -5,6 +5,7 @@
 module mini_miners::mine_nft {
     use sui::url::{Self, Url};
     use std::string;
+    use sui::address;
     use sui::object::{Self, ID, UID};
     use sui::event;
     use sui::transfer;
@@ -80,11 +81,9 @@ module mini_miners::mine_nft {
         
         let id = object::new(ctx);
 
-        let id_bytes = object::uid_to_bytes(&id);
-        let id_string = string::utf8(id_bytes);
-
+        let id_address = object::uid_to_address(&id);
+        let id_string = address::to_string(id_address);
         let token_url = string::utf8(factory.base_uri);
-
         string::append(&mut token_url, id_string);
 
         let mine = Mine {
