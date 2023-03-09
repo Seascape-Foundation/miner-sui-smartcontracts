@@ -26,8 +26,6 @@ module mini_miners::game {
         stake_time: u64
     }
 
-    // todo change the collector
-    // change the ratio
     struct Game has key {
         id: UID,
         collector: address,
@@ -70,6 +68,13 @@ module mini_miners::game {
         owner: address,
     }
 
+    struct SetCollector has copy, drop {
+        recepient: address,
+    }
+
+    struct SetRatio has copy, drop {
+        ratio: u64,
+    }
 
     // Upon deployment, we create a shared nonce
     fun init(ctx: &mut TxContext) {
@@ -224,6 +229,20 @@ module mini_miners::game {
         let claimable_amount = dynamic_object_field::remove<u8, Coin<COIN>>(&mut game.id, 0x01);
 
         coin::join(collector_balance, claimable_amount);
+    }
+
+    // Update the fee collector
+    public entry fun set_collector(game: &mut Game, recepient: address, _ctx: &mut TxContext) {
+        game.collector = recepient;
+
+        event::emit(SetCollector {recepient: recepient});
+    }
+
+    // Update the ratio of the gold to in-game currency
+    public entry fun set_ratio(game: &mut Game, ratio: u64, _ctx: &mut TxContext) {
+        game.ratio = ratio;
+
+        event::emit(SetRatio {ratio: ratio});
     }
 
     /////////////////////////////////////////////////////////////////////
