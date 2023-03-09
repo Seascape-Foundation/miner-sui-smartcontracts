@@ -28,7 +28,6 @@ module mini_miners::game {
         id: UID,
         collector: address,
         ratio: u64,
-        nonce: u64,
     }
 
     //////////////////////////////////////////////////////////////
@@ -64,15 +63,10 @@ module mini_miners::game {
     fun init(ctx: &mut TxContext) {
         let game = Game {
             id: object::new(ctx),
-            nonce: 0,
             ratio: 10_000_000, // 10 million golds to 1 Crypto coin
             collector: tx_context::sender(ctx),
         };
         transfer::share_object(game);
-    }
-
-    public fun nonce(game: &Game): u64 {
-        game.nonce
     }
 
     //////////////////////////////////////////////////////////////////
@@ -97,8 +91,6 @@ module mini_miners::game {
             owner: tx_context::sender(ctx),
             stake_time: timestamp,
         };
-
-        game.nonce = game.nonce + 1;
 
         dynamic_object_field::add(&mut params.id, true, item);
         dynamic_object_field::add(&mut game.id, item_id, params);
@@ -166,8 +158,6 @@ module mini_miners::game {
         let collector = game.collector;
 
         assert!(dynamic_object_field::exists_<address>(&game.id, collector), ENotEnoughFunds);
-
-        game.nonce = game.nonce + 1;
 
         let borrowed_coin = coin::split(
             dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, collector),
