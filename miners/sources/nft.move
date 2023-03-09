@@ -10,8 +10,11 @@ module mini_miners::mine_nft {
     use sui::event;
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
+    use sui::dynamic_object_field;
 
     const ENotMinter: u64 = 1;
+    const ENotOwner: u64 = 1;
+    const EMinterExists: u64 = 2;
     const NFT_NAME: vector<u8> = b"MINES";
 
     struct Mine has key, store {
@@ -23,11 +26,14 @@ module mini_miners::mine_nft {
         quality: u64,
     }
 
-    // The permissioned to mint
-    struct Management has key {
+    struct Info has key {
         id: UID,
         base_uri: vector<u8>,
-        minter: address,
+        owner: address,
+    }
+
+    struct Minter has key, store {
+        id: UID,
     }
 
     ////////////////////////////////////////////////
@@ -49,41 +55,80 @@ module mini_miners::mine_nft {
         sender: address,
     }
 
-    struct ManagementTransferred has copy, drop {
+    struct TransferOwnership has copy, drop {
         owner: address,
     }
 
-    struct SetMinter has copy, drop {
+    struct AddMinter has copy, drop {
         minter: address,
+    }
+
+    struct DeleteMinter has copy, drop {
+        minter: address,
+    }
+
+    struct SetBaseUri has copy, drop {
+        value: vector<u8>,
     }
 
     fun init(ctx: &mut TxContext) {
         let owner = tx_context::sender(ctx);
 
-        let minter = Management {
+        let info = Info {
             id: object::new(ctx),
             base_uri: b"https://sui-api.miniminersgame.com/meta/",
-            minter: owner,
+            owner: owner,
         };
 
-        event::emit(ManagementTransferred {owner: owner});
-        event::emit(SetMinter {minter: owner});
+        add_minter(&mut info, owner, ctx);
 
         // smartcontracts could be minted by the owner
-        transfer::transfer(minter, owner)
+        transfer::share_object(info);
+
+        event::emit(SetBaseUri {value: b"https://sui-api.miniminersgame.com/meta/"});
+        event::emit(TransferOwnership {owner: owner});
     }
 
-    // mint a new nft
-    public entry fun mint(factory: &Management, recipient: address, generation: u64, quality: u64, ctx: &mut TxContext) {
-        let minter = factory.minter;
+    public fun add_minter(info: &mut Info, recepient: address, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
-        assert!(sender == minter, ENotMinter);
-        
+        assert!(sender == info.owner, ENotOwner);
+
+        assert!(!dynamic_object_field::exists_with_type<address, Minter>(&info.id, recepient), EMinterExists);
+
+        let minter = Minter {
+            id: object::new(ctx),
+        };
+
+        dynamic_object_field::add<address, Minter>(&mut info.id, recepient, minter);
+
+        event::emit(AddMinter {minter: recepient});
+    }
+
+    public entry fun remove_minter(info: &mut Info, recepient: address, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(sender == info.owner, ENotOwner);
+
+        assert!(dynamic_object_field::exists_with_type<address, Minter>(&info.id, recepient), ENotMinter);
+
+        let Minter { id } = dynamic_object_field::remove<address, Minter>(&mut info.id, recepient);
+        object::delete(id);
+
+        event::emit(DeleteMinter {minter: recepient});
+    }
+
+    // todo test passing management from non-deployer
+    // todo check the url
+    // mint a new nft
+    public entry fun mint(info: &Info, recipient: address, generation: u64, quality: u64, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(dynamic_object_field::exists_with_type<address, Minter>(&info.id, sender), ENotMinter);
+
         let id = object::new(ctx);
+
 
         let id_address = object::uid_to_address(&id);
         let id_string = address::to_string(id_address);
-        let token_url = string::utf8(factory.base_uri);
+        let token_url = string::utf8(info.base_uri);
         string::append(&mut token_url, id_string);
 
         let mine = Mine {
@@ -128,17 +173,13 @@ module mini_miners::mine_nft {
     }
 
     // transfer ownership over the nft management
-    public entry fun transfer_ownership(management: Management, recipient: address, _ctx: &mut TxContext) {
-        transfer::transfer(management, recipient);
+    public entry fun transfer_ownership(info: Info, recipient: address, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(sender == info.owner, ENotOwner);
 
-        event::emit(ManagementTransferred {owner: recipient});
-    }
+        transfer::transfer(info, recipient);
 
-    // Change the address who can mint nfts
-    public entry fun set_minter(management: &mut Management, recipient: address, _ctx: &mut TxContext) {
-        management.minter = recipient;
-
-        event::emit(SetMinter {minter: recipient});
+        event::emit(TransferOwnership {owner: recipient});
     }
 
     // transfer nft
