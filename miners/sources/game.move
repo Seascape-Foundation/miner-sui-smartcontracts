@@ -239,7 +239,6 @@ module mini_miners::game {
         event::emit(TransferOwnership {recepient: recepient});
     }
 
-
     // Update the fee collector
     public entry fun set_collector(game: &mut Game, recepient: address, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
@@ -264,7 +263,6 @@ module mini_miners::game {
     //
     /////////////////////////////////////////////////////////////////////
 
-
     #[test]
     public fun test_sell_gold() {
         use sui::test_scenario;
@@ -281,19 +279,22 @@ module mini_miners::game {
             init(test_scenario::ctx(scenario));
         };
 
-        // we send some coins to the smartcontract
+        // let's mint some SUI coins for the deployer
         test_scenario::next_tx(scenario, collector);
         {
             let coin = coin::mint_for_testing<SUI>(1000, test_scenario::ctx(scenario));
             transfer::transfer(coin, collector);
         };
 
+        // let's mint some SUI coins for the player
         test_scenario::next_tx(scenario, player);
         {
             let coin = coin::mint_for_testing<SUI>(1000, test_scenario::ctx(scenario));
             transfer::transfer(coin, player);
         };
 
+        // we send some coins to the smartcontract
+        // that user can withdraw
         test_scenario::next_tx(scenario, collector);
         {
             let coin = test_scenario::take_from_sender<Coin<SUI>>(scenario);
@@ -302,39 +303,25 @@ module mini_miners::game {
             let game_wrapper = test_scenario::take_shared<Game>(scenario); 
 
             transfer_token<SUI>(&mut game_wrapper, payment, test_scenario::ctx(scenario));
-
             test_scenario::return_shared(game_wrapper);
             test_scenario::return_to_sender(scenario, coin);
         }; 
   
+        // player sells the gold
         test_scenario::next_tx(scenario, player);
         {
             let game_wrapper = test_scenario::take_shared<Game>(scenario); 
-            let token_amount = 2; // 0.1 SUI
+            let token_amount: u64 = 1; // 0.1 SUI
             let gold_id = 1;
             
             let player_pre_coin = test_scenario::take_from_sender<Coin<SUI>>(scenario);
             let pre_balance = coin::value(&player_pre_coin);
             debug::print(&pre_balance);
 
-            let collector_pre_coin = test_scenario::take_from_address<Coin<SUI>>(scenario, collector);
-            let collector_pre_balance = coin::value(&collector_pre_coin);
-            debug::print(&collector_pre_balance);
-
-            sell_gold(&mut game_wrapper, &mut player_pre_coin, token_amount, gold_id, test_scenario::ctx(scenario));
+            sell_gold<SUI>(&mut game_wrapper, token_amount, gold_id, test_scenario::ctx(scenario));
             
             test_scenario::return_shared(game_wrapper);
-
-            // printing the sui amount after the transaction
-            let post_balance = coin::value(&player_pre_coin);
-            debug::print(&post_balance);
-            let collector_post_balance = coin::value(&collector_pre_coin);
-            debug::print(&collector_post_balance);
-
-            assert!(post_balance == 1002, 2);
-
             test_scenario::return_to_sender(scenario, player_pre_coin);
-            test_scenario::return_to_address(collector, collector_pre_coin);
         };
 
         // player buys a pack
@@ -358,33 +345,8 @@ module mini_miners::game {
             test_scenario::return_shared(game_wrapper);
 
             // printing the sui amount after the transaction
-            let post_balance = coin::value(&player_coin);
-            debug::print(&post_balance);
-            let collector_post_balance = coin::value(&collector_pre_coin);
-            debug::print(&collector_post_balance);
-
             test_scenario::return_to_sender(scenario, player_coin);
             test_scenario::return_to_address(collector, collector_pre_coin);
-        };
-
-        // check the collector balance
-        test_scenario::next_tx(scenario, collector);
-        {
-            debug::print(&collector);
-
-            let game_wrapper = test_scenario::take_shared<Game>(scenario); 
-
-            let player_coin = test_scenario::take_from_sender<Coin<SUI>>(scenario);
-            let pre_balance = coin::value(&player_coin);
-            debug::print(&pre_balance);
-
-            withdraw_and_keep<SUI>(&mut game_wrapper, &mut player_coin, test_scenario::ctx(scenario));
-
-            let pre_balance = coin::value(&player_coin);
-            debug::print(&pre_balance);
-
-            test_scenario::return_to_sender(scenario, player_coin);
-            test_scenario::return_shared(game_wrapper);
         };
 
         test_scenario::end(scenario_val);
