@@ -5,7 +5,7 @@
 module mini_miners::game {
     use sui::object::{Self, ID, UID};
     use sui::dynamic_object_field;
-    // use mini_miners::verifier;
+    use mini_miners::verifier;
     // use std::vector;
     use sui::transfer;
     use sui::bcs;
@@ -17,6 +17,7 @@ module mini_miners::game {
     const ENotOwner: u64 = 1;
     const EAmountIncorrect: u64 = 2;
     const ENotEnoughFunds: u64 = 3;
+    const ESigFail: u64 = 4;
 
     const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
 
@@ -121,7 +122,7 @@ module mini_miners::game {
     // todo emit event using sui::event
     //
     // todo make sure that nft is whitelisted
-    public entry fun import_nft<T: key + store>(game: &mut Game, item: T, timestamp: u64, ctx: &mut TxContext) {
+    public entry fun import_nft<T: key + store>(game: &mut Game, item: T, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext) {
         let nft_id = object::id(&item);
         let sender = tx_context::sender(ctx);
         
@@ -133,7 +134,9 @@ module mini_miners::game {
         };
         let import_nft_bytes = bcs::to_bytes(&import_nft_message);
         let import_nft_hash = hash::keccak256(&import_nft_bytes);
-        
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_hash);
+        assert!(game.verifier == recovered_address, ESigFail);
+
         let params = PlayerParams {
             id: object::new(ctx),
             owner: sender,
