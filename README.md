@@ -218,19 +218,3 @@ sui client split-coin `
 Then use the created object for buying pack.
 
 ---
-
-#### Withdraw the collected fees from smartcontract as the owner
-
-```powershell
-sui client call `
---function withdraw_and_keep `
---module game `
---package 0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56 `
---gas-budget 1000 `
---type-args 0x2::sui::SUI `
---args `
-  0x1798b2bbe3db25d746cffa8a343f0840c85a99d8 `
-  0x13158b22e6adcd12b85c5ed9d9f07d9d64a6ba0c
-```
-
-The first argument is the shared game object. The second argument is the coin object id. The tokens from smartcontracts will be added to the second argument.
