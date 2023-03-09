@@ -30,6 +30,7 @@ module mini_miners::game {
         id: UID,
         owner: address,
         collector: address,
+        verifier: address,
         ratio: u64,
     }
 
@@ -77,6 +78,10 @@ module mini_miners::game {
         recepient: address,
     }
 
+    struct SetVerifier has copy, drop {
+        recepient: address,
+    }
+
     struct SetRatio has copy, drop {
         ratio: u64,
     }
@@ -85,11 +90,13 @@ module mini_miners::game {
     fun init(ctx: &mut TxContext) {
         let owner = tx_context::sender(ctx);
         let ratio = 10_000_000; // 10 million golds to 1 Crypto coin
+
         let game = Game {
             id: object::new(ctx),
             ratio: ratio,
             owner: owner,
             collector: owner,
+            verifier: owner,
         };
         transfer::share_object(game);
 
@@ -258,6 +265,15 @@ module mini_miners::game {
         game.collector = recepient;
 
         event::emit(SetCollector {recepient: recepient});
+    }
+
+    // Update the backend private key
+    public entry fun set_verifier(game: &mut Game, recepient: address, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(sender == game.owner, ENotOwner);
+        game.verifier = recepient;
+
+        event::emit(SetVerifier {recepient: recepient});
     }
 
     // Update the ratio of the gold to in-game currency
