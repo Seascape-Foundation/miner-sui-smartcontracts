@@ -19,7 +19,7 @@ module mini_miners::game {
     const ESigFail: u64 = 4;
 
     const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
-    const SELL_PACK_PREFIX: vector<u8> = b"sell_miner_gold";
+    const SELL_PACK_PREFIX: vector<u8> = b"sell_miner_pack";
     const BUY_PACK_PREFIX: vector<u8> = b"buy_miner_pack";
 
     struct PlayerParams has key, store {
