@@ -39,7 +39,7 @@ cargo install --git https://github.com/MystenLabs/sui.git `
 
 ```powershell
 cargo install --git https://github.com/MystenLabs/sui.git \
- --tag devnet-0.27.0 sui --force
+ --tag devnet-0.27.1 sui --force
 ```
 
 Go to the root directory with the smartcontracts.
