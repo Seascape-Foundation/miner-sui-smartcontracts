@@ -94,9 +94,9 @@ In the repository of the sync bot, update the `config/config.json`
 sui client call `
  --function mint `
  --module mine_nft `
- --package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 ` --gas-budget 1000 `
+ --package 0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56 ` --gas-budget 1000 `
  --args `
-  		0x53432da377abc8b5804d9c7c0ff6a01a941aeb70 `
+  		0x68cd72eb93b5894af90edc84591cf43c0c4d4c1d `
   0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2 `
   2 `
   3
@@ -128,7 +128,7 @@ in the smartcontract
 sui client call `
 --function transfer_token `
 --module game `
---package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
+--package 0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
@@ -152,7 +152,7 @@ Lets test selling `1500000` of gold for 0.1 SUI.
 sui client call `
 --function sell_gold `
 --module game `
---package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
+--package 0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
@@ -185,7 +185,7 @@ Let's test purchasing `Diamonds` for `0.002 SUI`.
 sui client call `
 --function buy_pack `
 --module game `
---package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
+--package 0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
@@ -225,7 +225,7 @@ Then use the created object for buying pack.
 sui client call `
 --function withdraw_and_keep `
 --module game `
---package 0xb8a5384e996f50e262f6ab2b2b40c46e9e3bfa62 `
+--package 0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56 `
 --gas-budget 1000 `
 --type-args 0x2::sui::SUI `
 --args `
