@@ -19,7 +19,7 @@ module mini_miners::game {
     const ESigFail: u64 = 4;
 
     const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
-    const SELL_GOLD_PREFIX: vector<u8> = b"sell_miner_gold";
+    const SELL_PACK_PREFIX: vector<u8> = b"sell_miner_gold";
     const BUY_PACK_PREFIX: vector<u8> = b"buy_miner_pack";
 
     struct PlayerParams has key, store {
@@ -59,10 +59,10 @@ module mini_miners::game {
     //
     //////////////////////////////////////////////////////////////
 
-    struct SellGold has copy, drop {
+    struct SellPack has copy, drop {
         player: address,
         token_amount: u64,
-        gold_id: u8,
+        pack_id: u8,
     }
 
     struct BuyPack has copy, drop {
@@ -198,12 +198,13 @@ module mini_miners::game {
     }
 
     // User sells the in-game currency in exchange for COIN.
-    public entry fun sell_gold<COIN>(game: &mut Game, token_amount: u64, pack_id: u8, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext) {
+    // Or any other pack that we define
+    public entry fun sell_pack<COIN>(game: &mut Game, token_amount: u64, pack_id: u8, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext) {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
 
         let sell_gold_message = PackMessage {
-            prefix: SELL_GOLD_PREFIX,
+            prefix: SELL_PACK_PREFIX,
             token_amount: token_amount,
             pack_id: pack_id,
             game: object::id_address(game),
@@ -225,7 +226,7 @@ module mini_miners::game {
 
         transfer::transfer(borrowed_coin, player);
 
-        event::emit(SellGold{player, token_amount, gold_id: pack_id})
+        event::emit(SellPack{player, token_amount, pack_id: pack_id})
     }
 
     // Buy a resource pack or diamond pack
