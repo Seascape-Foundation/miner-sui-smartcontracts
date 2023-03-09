@@ -37,14 +37,14 @@ module mini_miners::mine_nft {
 
     struct NftMinted has copy, drop {
         nft_id: ID,
-        receiver: address,
+        recipient: address,
         quality: u64,
         generation: u64,
     }
 
     struct NftTransferred has copy, drop {
         nft_id: ID,
-        receiver: address,
+        recipient: address,
         sender: address,
     }
 
@@ -73,7 +73,7 @@ module mini_miners::mine_nft {
     }
 
     // mint a new nft
-    public entry fun mint(factory: &Management, receiver: address, generation: u64, quality: u64, ctx: &mut TxContext) {
+    public entry fun mint(factory: &Management, recipient: address, generation: u64, quality: u64, ctx: &mut TxContext) {
         let minter = factory.minter;
         let sender = tx_context::sender(ctx);
         assert!(sender == minter, ENotMinter);
@@ -97,12 +97,12 @@ module mini_miners::mine_nft {
 
         event::emit(NftMinted {
             nft_id: object::id(&mine),
-            receiver: receiver,
+            recipient: recipient,
             quality: quality,
             generation: generation,
         });
 
-        transfer::transfer(mine, receiver);
+        transfer::transfer(mine, recipient);
     }
 
     // transfer ownership over the nft management
@@ -125,7 +125,7 @@ module mini_miners::mine_nft {
 
         event::emit(NftTransferred {
             nft_id: object::id(&mine),
-            receiver: recipient,
+            recipient: recipient,
             sender: sender,
         });
 
