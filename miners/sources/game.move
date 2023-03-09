@@ -6,7 +6,6 @@ module mini_miners::game {
     use sui::object::{Self, ID, UID};
     use sui::dynamic_object_field;
     use mini_miners::verifier;
-    // use std::vector;
     use sui::transfer;
     use sui::bcs;
     use sui::tx_context::{Self, TxContext};
