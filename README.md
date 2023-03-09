@@ -218,3 +218,26 @@ sui client split-coin `
 Then use the created object for buying pack.
 
 ---
+
+#### Import NFT
+
+```powershell
+sui client call `
+  --function import_nft `
+  --module game `
+  --package 0x8bfc690e84558814aaab3f2f6755e18f0f59217d `
+  --gas-budget 3000 `
+  --type-args 0x8bfc690e84558814aaab3f2f6755e18f0f59217d::mine_nft::Mine `
+  --args `
+    0xbfd3f36b2ea108333cde4b2558c64d95dd6172dd `
+    0x9d233fe1481b001c34a2f13893b87046cf1d0570 `
+    1678367370 `
+    0x0c4e96924cda5b54954e96a7fa1c44b5a95a42659e0ebcb40e5ded78bb0e67a46c99fbb032040234b372e193ec6c3a50300453b8e377e357562285093b69afa100
+```
+
+The first argument is the shared game object. The second argument is the coin object id. The tokens from smartcontracts will be added to the second argument.
+
+`0xbfd3f36b2ea108333cde4b2558c64d95dd6172dd`: is the shared game object.
+`0x9d233fe1481b001c34a2f13893b87046cf1d0570` argument is the nft id.
+`1678367370` is the Unix timestamp returned by the server.
+The last parameter is the signature returned by the server.
