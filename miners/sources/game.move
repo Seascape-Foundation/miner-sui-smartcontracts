@@ -100,7 +100,9 @@ module mini_miners::game {
         };
         transfer::share_object(game);
 
+        event::emit(TransferOwnership {recepient: owner});
         event::emit(SetCollector {recepient: owner});
+        event::emit(SetVerifier {recepient: owner});
         event::emit(SetRatio {ratio: ratio});
     }
 
