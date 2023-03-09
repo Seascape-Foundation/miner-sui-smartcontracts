@@ -10,22 +10,23 @@ module mini_miners::mine_nft {
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
 
-    const ENotFactory: u64 = 1;
+    const ENotMinter: u64 = 1;
+    const NFT_NAME: vector<u8> = b"MINES";
 
     struct Mine has key, store {
         id: UID,
         name: string::String,
-        quality: u64,
         url: Url,
         // custom attributes of Nft
-        description: string::String,
         generation: u64,
+        quality: u64,
     }
 
     // The permissioned to mint
-    struct Factory has key {
+    struct Management has key {
         id: UID,
-        permissioned: bool,
+        base_uri: vector<u8>,
+        minter: address,
     }
 
     ////////////////////////////////////////////////
@@ -47,43 +48,79 @@ module mini_miners::mine_nft {
         sender: address,
     }
 
+    struct ManagementTransferred has copy, drop {
+        owner: address,
+    }
+
+    struct SetMinter has copy, drop {
+        minter: address,
+    }
+
     fun init(ctx: &mut TxContext) {
-        let minter = Factory {
+        let owner = tx_context::sender(ctx);
+
+        let minter = Management {
             id: object::new(ctx),
-            permissioned: true,
+            base_uri: b"https://sui-api.miniminersgame.com/meta/",
+            minter: owner,
         };
+
+        event::emit(ManagementTransferred {owner: owner});
+        event::emit(SetMinter {minter: owner});
+
         // smartcontracts could be minted by the owner
-        transfer::transfer(minter, tx_context::sender(ctx))
+        transfer::transfer(minter, owner)
     }
 
     // mint a new nft
-    // todo: create an event that emits generation, quality
-    public entry fun mint(factory: &Factory, to: address, generation: u64, quality: u64, ctx: &mut TxContext) {
-        assert!(factory.permissioned == true, ENotFactory);
+    public entry fun mint(factory: &Management, receiver: address, generation: u64, quality: u64, ctx: &mut TxContext) {
+        let minter = factory.minter;
+        let sender = tx_context::sender(ctx);
+        assert!(sender == minter, ENotMinter);
+        
+        let id = object::new(ctx);
+
+        let id_bytes = object::uid_to_bytes(&id);
+        let id_string = string::utf8(id_bytes);
+
+        let token_url = string::utf8(factory.base_uri);
+
+        string::append(&mut token_url, id_string);
 
         let mine = Mine {
-            id: object::new(ctx),
+            id: id,
             generation: generation,
             quality: quality,
-            name: string::utf8(b"MINES"),
-            url: url::new_unsafe_from_bytes(b"https://sui-api.miniminersgame.com/metadata/any"),
-            description: string::utf8(b"The MiniMiners nft")
+            name: string::utf8(NFT_NAME),
+            url: url::new_unsafe(string::to_ascii(token_url)),
         };
 
         event::emit(NftMinted {
             nft_id: object::id(&mine),
-            receiver: to,
+            receiver: receiver,
             quality: quality,
             generation: generation,
         });
 
-        transfer::transfer(mine, to);
+        transfer::transfer(mine, receiver);
     }
 
-    // transfer minted nft
-    public entry fun transfer(mine: Mine, recipient: address, ctx: &mut TxContext) {
-        use sui::transfer;
+    // transfer ownership over the nft management
+    public entry fun transfer_ownership(management: Management, recipient: address, _ctx: &mut TxContext) {
+        transfer::transfer(management, recipient);
 
+        event::emit(ManagementTransferred {owner: recipient});
+    }
+
+    // Change the address who can mint nfts
+    public entry fun set_minter(management: &mut Management, recipient: address, _ctx: &mut TxContext) {
+        management.minter = recipient;
+
+        event::emit(SetMinter {minter: recipient});
+    }
+
+    // transfer nft
+    public entry fun transfer(mine: Mine, recipient: address, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
 
         event::emit(NftTransferred {
@@ -92,7 +129,7 @@ module mini_miners::mine_nft {
             sender: sender,
         });
 
-        // transfer the MineNFT
+        // transfer the MINES nft
         transfer::transfer(mine, recipient);
     }
 
@@ -102,6 +139,10 @@ module mini_miners::mine_nft {
     
     public fun quality(mine: &Mine): u64 {
         mine.quality
+    }
+
+    public fun name(_mine: &Mine): vector<u8> {
+        NFT_NAME
     }
 
     #[test]
@@ -121,7 +162,6 @@ module mini_miners::mine_nft {
             id: id,
             generation: g,
             quality: q,
-            description: string::utf8(b""),
             name: string::utf8(b""),
             url: url::new_unsafe_from_bytes(b""),
         };
