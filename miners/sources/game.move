@@ -264,6 +264,59 @@ module mini_miners::game {
     /////////////////////////////////////////////////////////////////////
 
     #[test]
+    public fun test_import_nft() {
+        use sui::test_scenario;
+        use sui::sui::SUI;
+        use std::debug;
+        // use mini_miners::mine_nft;
+
+        let collector: address = @0xBABE;
+        let player: address = @0xCAFE;
+        // let verifier: address = @0x8ec7ccb4e3925fef987d8a2ff11f78051e0ffc46;
+
+        // first we create the game object
+        let scenario_val = test_scenario::begin(collector);
+        let scenario = &mut scenario_val;
+        {
+            init(test_scenario::ctx(scenario));
+        };
+
+        // let's mint some SUI coins for the deployer
+        test_scenario::next_tx(scenario, collector);
+        {
+            let coin = coin::mint_for_testing<SUI>(1000, test_scenario::ctx(scenario));
+            transfer::transfer(coin, collector);
+        };
+
+        // mint some nft for the user
+        test_scenario::next_tx(scenario, collector);
+        {
+            debug::print(&b"starting to check parameters");
+
+            let sender: address = @0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2;
+            let timestamp: u64 = 1678367370;
+
+            let import_nft_message = ImportNftMessage {
+                prefix: IMPORT_NFT_PREFIX,
+                nft_id: object::id_from_address(@0x9d233fe1481b001c34a2f13893b87046cf1d0570),
+                owner: sender,
+                timestamp: timestamp,
+            };
+            let import_nft_bytes = bcs::to_bytes(&import_nft_message);
+            let import_nft_hash = hash::keccak256(&import_nft_bytes);
+
+            let signature: vector<u8> = x"0c4e96924cda5b54954e96a7fa1c44b5a95a42659e0ebcb40e5ded78bb0e67a46c99fbb032040234b372e193ec6c3a50300453b8e377e357562285093b69afa100";
+            let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_hash);
+
+            debug::print(&import_nft_bytes);
+            debug::print(&import_nft_hash);
+            debug::print(&recovered_address);
+        };
+
+        test_scenario::end(scenario_val);
+    }
+
+    #[test]
     public fun test_sell_gold() {
         use sui::test_scenario;
         use sui::sui::SUI;
