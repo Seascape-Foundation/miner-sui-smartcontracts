@@ -13,6 +13,7 @@ module mini_miners::verifier {
     use sui::tx_context::TxContext;
     use sui::transfer;
     use std::vector;
+    use sui::address;
     /// Event on whether the signature is verified
     struct VerifiedEvent has copy, drop {
         is_verified: bool,
@@ -42,7 +43,7 @@ module mini_miners::verifier {
         transfer::transfer(pubkey, recipient)
     }
 
-    public entry fun ecrecover_to_eth_address(signature: vector<u8>, hashed_msg: vector<u8>, recipient: address, ctx: &mut TxContext) {
+    public fun ecrecover_to_eth_address(signature: vector<u8>, hashed_msg: vector<u8>): address {
         // Normalize the last byte of the signature to be 0 or 1.
         let v = vector::borrow_mut(&mut signature, 64);
         if (*v == 27) {
@@ -75,13 +76,7 @@ module mini_miners::verifier {
             i = i + 1;
         };
 
-        let addr_object = Output {
-            id: object::new(ctx),
-            value: addr,
-        };
-
-        // Transfer an output data object holding the address to the recipient.
-        transfer::transfer(addr_object, recipient)
+        address::from_bytes(addr)
     }
 
     public entry fun secp256k1_verify(signature: vector<u8>, public_key: vector<u8>, hashed_msg: vector<u8>) {
