@@ -104,15 +104,7 @@ module mini_miners::game {
     //
     //////////////////////////////////////////////////////////////////
 
-    // todo add the ecrecover
-    // generating the message hash using sui::bcs and sui::hash::keccak256
-    // on top of the
-    // https://github.com/MystenLabs/sui-axelar/blob/2a0f17ab8efdb8ebc6bca753328180a02f6fcf6e/presets/index.js#L108
-    // check the miners/sources/ecdsa.move for ecrecover example
-    //
-    // todo emit event using sui::event
-    //
-    // todo make sure that nft is whitelisted
+    // import nft into the game.
     public entry fun import_nft<T: key + store>(game: &mut Game, item: T, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext) {
         let nft_id = object::id(&item);
         let sender = tx_context::sender(ctx);
