@@ -32,7 +32,6 @@ module mini_miners::game {
         owner: address,
         collector: address,
         verifier: address,
-        ratio: u64,
     }
 
     #[derive(Serialize)]
@@ -83,18 +82,12 @@ module mini_miners::game {
         recepient: address,
     }
 
-    struct SetRatio has copy, drop {
-        ratio: u64,
-    }
-
     // Upon deployment, we create a shared nonce
     fun init(ctx: &mut TxContext) {
         let owner = tx_context::sender(ctx);
-        let ratio = 10_000_000; // 10 million golds to 1 Crypto coin
 
         let game = Game {
             id: object::new(ctx),
-            ratio: ratio,
             owner: owner,
             collector: owner,
             verifier: owner,
@@ -104,7 +97,6 @@ module mini_miners::game {
         event::emit(TransferOwnership {recepient: owner});
         event::emit(SetCollector {recepient: owner});
         event::emit(SetVerifier {recepient: owner});
-        event::emit(SetRatio {ratio: ratio});
     }
 
     //////////////////////////////////////////////////////////////////
@@ -279,15 +271,6 @@ module mini_miners::game {
         game.verifier = recepient;
 
         event::emit(SetVerifier {recepient: recepient});
-    }
-
-    // Update the ratio of the gold to in-game currency
-    public entry fun set_ratio(game: &mut Game, ratio: u64, ctx: &mut TxContext) {
-        let sender = tx_context::sender(ctx);
-        assert!(sender == game.owner, ENotOwner);
-        game.ratio = ratio;
-
-        event::emit(SetRatio {ratio: ratio});
     }
 
     /////////////////////////////////////////////////////////////////////
