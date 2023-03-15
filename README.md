@@ -52,19 +52,38 @@ https://github.com/MystenLabs/sui.git `
 ```
 
 ---
-# Build
+## Build
 
 ```powershell
 sui move build
 ```
 
-Compile the smartcontract source code to the binary
+Compile the smartcontract source code to the binary.
 
 ![Compile sui code](./_assets/sui_build.png "Type on terminal: `sui move build`")
 
+> :warning: Warning 
+> If you didn't see the output as on the screenshot above, then the code is malformed. Contact me: [admin@blocklords.io](mailto:admin@blocklords.io)
+
 ---
 
-####Publish the smartcontracts**
+## Test
+
+```powershell
+sui move test
+```
+
+Run the tests
+![Run tests](./_assets/sui_test.png "Type on terminal: `sui move test`")
+
+> :warning: Warning
+> If you didn't see the output as on the screenshot above, then the code is malformed. Contact me: [admin@blocklords.io](mailto:admin@blocklords.io)
+
+---
+
+#Deploy
+
+Deploy the smartcontracts on the blockchain.
 
 ```powershell
 sui client publish --gas-budget 3000 --dev --doc --abi 
@@ -256,6 +275,7 @@ The last parameter is the signature returned by the server.
 ---
 
 ## Sui tutorials
+
 The list of references used in the writing of these smartcontracts:
 
 * https://github.com/MystenLabs/sui &ndash; source code with all links to start to work with Sui blockchain.
