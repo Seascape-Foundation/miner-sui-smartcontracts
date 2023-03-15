@@ -294,16 +294,41 @@ module mini_miners::game {
     //
     /////////////////////////////////////////////////////////////////////
 
+    #[test_only]
+    public entry fun sell_pack_without_signature<COIN>(game: &mut Game, token_amount: u64, pack_id: u8, ctx: &mut TxContext) {
+        let player = tx_context::sender(ctx);
+        let collector = game.collector;
+
+        assert!(dynamic_object_field::exists_<address>(&game.id, collector), ENotEnoughFunds);
+
+        let borrowed_coin = coin::split(
+            dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, collector),
+            token_amount,
+            ctx
+        );
+
+        transfer::transfer(borrowed_coin, player);
+
+        event::emit(SellPack{player, token_amount, pack_id: pack_id})
+    }
+
+    #[test_only]
+    public entry fun buy_pack_without_signature<COIN>(game: &mut Game, paid: Coin<COIN>, pack_id: u8, ctx: &mut TxContext) {
+        let token_amount = coin::value(&paid);
+        let player = tx_context::sender(ctx);
+
+        transfer::transfer(paid, game.collector);
+
+        event::emit(BuyPack{player, token_amount, pack_id})
+    }
+
     #[test]
     public fun test_import_nft() {
         use sui::test_scenario;
         use sui::sui::SUI;
         use std::debug;
-        // use mini_miners::mine_nft;
 
         let collector: address = @0xBABE;
-        let player: address = @0xCAFE;
-        // let verifier: address = @0x8ec7ccb4e3925fef987d8a2ff11f78051e0ffc46;
 
         // first we create the game object
         let scenario_val = test_scenario::begin(collector);
@@ -402,7 +427,7 @@ module mini_miners::game {
             let pre_balance = coin::value(&player_pre_coin);
             debug::print(&pre_balance);
 
-            sell_gold<SUI>(&mut game_wrapper, token_amount, gold_id, test_scenario::ctx(scenario));
+            sell_pack_without_signature<SUI>(&mut game_wrapper, token_amount, gold_id, test_scenario::ctx(scenario));
             
             test_scenario::return_shared(game_wrapper);
             test_scenario::return_to_sender(scenario, player_pre_coin);
@@ -424,7 +449,7 @@ module mini_miners::game {
             let collector_pre_balance = coin::value(&collector_pre_coin);
             debug::print(&collector_pre_balance);
 
-            buy_pack(&mut game_wrapper, payment, pack_id, test_scenario::ctx(scenario));
+            buy_pack_without_signature<SUI>(&mut game_wrapper, payment, pack_id, test_scenario::ctx(scenario));
 
             test_scenario::return_shared(game_wrapper);
 
