@@ -1,8 +1,7 @@
 ![MiniMiners play-to-earn game on Sui Blockchain](./_assets/miners.jpg "MiniMiners play to earn game")
 The Smartcontracts of the [MiniMiners](https://miniminersgame.com/), the p2e earn on Sui Blockchain.
 
-> Addresses of the deployed resources:
-> [ADDRESS](./ADDRESSES.md)
+> :bulb: Deployed recoursed are on another page: [Addresses.md](./ADDRESSES.md)
 
 ---
 
