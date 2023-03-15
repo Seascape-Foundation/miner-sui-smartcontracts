@@ -82,6 +82,9 @@ Run the tests
 
 #Deploy
 
+> :bulb: You may need SUI token to publish or call functions.
+> To obtain a gas for devnet check out https://docs.sui.io/build/faucet
+
 Deploy the smartcontracts on the blockchain.
 
 ```powershell
