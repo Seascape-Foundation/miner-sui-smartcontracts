@@ -102,7 +102,7 @@ Then add to the command another argument after `--abi`:
 Upon successful publishing, the console output will show
 Transaction Hash. Then we need to update the game backend to work with the newly published data.
 
-#####Steps to do to update the game
+### Update the game backend
 Go to the explorer, to the page of the transaction.
 The explorer will show the list of the created objects.
 Go to each object to identify the Object Type.
