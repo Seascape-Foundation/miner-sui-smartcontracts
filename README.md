@@ -1,32 +1,13 @@
-# MiniMiners smartcontracts for Sui blockchain.
+![MiniMiners play-to-earn game on Sui Blockchain](./_assets/miners.jpg "MiniMiners play to earn game")
+The Smartcontracts of the [MiniMiners](https://miniminersgame.com/), the p2e earn on Sui Blockchain.
 
-## Sui tutorials
-The list of references used in the writing of these smartcontracts:
+> Addresses of the deployed resources:
+> [ADDRESS](./ADDRESSES.md)
 
-* https://github.com/MystenLabs/sui &ndash; source code with all links to start to work with Sui blockchain.
-* https://docs.sui.io/devnet/explore &ndash; primary hub of the documentations.
-* https://github.com/MystenLabs/sui/blob/main/doc/src/explore/examples.md &ndash; primary hub of the examples.
-* https://github.com/MystenLabs/sui/blob/main/sui_programmability/examples/nfts/sources/marketplace.move &ndash; NFT marketplace, used to see how to import/export NFT into MiniMiners game smartcontract.
-* https://github.com/MystenLabs/sui-axelar/blob/2a0f17ab8efdb8ebc6bca753328180a02f6fcf6e/presets/index.js#L108 &ndash; example on how to generate the signatures offchain, then verifying them on-chain using `ecrecover` function.
-* https://github.com/MystenLabs/sui/tree/main/sdk/typescript/ &ndash; the SDK to interact with Sui blockchain from Node.js and browser backends.
-* https://move-language.github.io/move/vector.html &ndash; Move programming language book. The link is the page describing array like data structures: vectors.
-* https://github.com/MystenLabs/sui/blob/main/doc/src/build/install.md#sui-tokens &ndash; How to obtain devnet SUI token.
-* https://explorer.sui.io/ &ndash; explore the blocks and transactions.
-* https://github.com/move-language/move/tree/main/language/documentation/tutorial &ndash; official tutorial on move programming language.
-* https://github.com/MystenLabs/awesome-move#move-powered-blockchains &ndash; list of useful recource collection related to Move programming language.
+---
 
-## Deployed Addresses
-
-| Adress    | Type |  Description |
-| -----------|---- | ----------- |
-| [0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2]((https://explorer.sui.io/address/0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2))    | Address  | *Deployer Account*       |
-| [vqjPHGoUfCVKYFdeVc9Li41SseBSChwvqaecrAmzuw3](https://explorer.sui.io/transaction/vqjPHGoUfCVKYFdeVc9Li41SseBSChwvqaecrAmzuw3)   | Hash     | *Transaction Hash*        |
-| [0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56](https://explorer.sui.io/object/0x1f9f5ea685a87c1bc72ccf16092dc659c1b62f56)     | Package  | *MiniMiners package with MineNFT, Game modules* |
-| [0x68cd72eb93b5894af90edc84591cf43c0c4d4c1d](https://explorer.sui.io/object/0x68cd72eb93b5894af90edc84591cf43c0c4d4c1d)     | Object   | *NFT Manager that has minter address* |
-| `<package>::mine_nft::Mine`                     | ObjectType | *Mine NFT type* |
-| [0x5fe47ccb7009893bde9b5ffdc112881036125c96](https://explorer.sui.io/object/0x5fe47ccb7009893bde9b5ffdc112881036125c96) | Object | *Game object to work with Game module* |
-
-### Scripts
+# Installation
+It requires [sui](https://sui.io/) to be installed on your machine.
 
 If you didn't install sui, install it using:
 
@@ -35,21 +16,51 @@ cargo install --git https://github.com/MystenLabs/sui.git `
  --branch testnet sui --force
 ```
 
-*If the `sui publish` command gives a client-server version mismatch, then you should install the exact version*
+Upon installation complete, type on terminal:
 
 ```powershell
-cargo install --git https://github.com/MystenLabs/sui.git \
- --tag devnet-0.27.1 sui --force
+sui -V
 ```
 
-Go to the root directory with the smartcontracts.
+If you see the sui version printed, then go to the next step.
+![Sui Version on terminal](./_assets/sui_version.png "type on terminal: `sui -V`")
+
+## Link to the Sui
+The *MiniMiners* smartcontracts utilize `sui` and `std` library packages. Those packages are installed with the sui client.
+
+In this repository, open the `Move.toml` in the root folder.
+In the `[dependencies]` section set the correct path to Sui packages:
+
+```toml
+Sui = { local = "../sui/crates/sui-framework" }
+```
+
+The **sui** code will be installed to the `<user folder>/sui`.
+
+*For example on Windows:*
+*`C:\Users\<user name>\sui`.*
+
+That means, sui packages will be in `C:\Users\<user name>\sui\crates\sui-framework`.
+
+### Error handling
+*If the `sui publish` command gives **a client-server version mismatch** error, then you should install the exact version:*
+
+```powershell
+cargo install --git `
+https://github.com/MystenLabs/sui.git `
+--tag devnet-0.27.1 sui --force
+```
 
 ---
-#####Compile the smartcontracts
+# Build
 
 ```powershell
 sui move build
 ```
+
+Compile the smartcontract source code to the binary
+
+![Compile sui code](./_assets/sui_build.png "Type on terminal: `sui move build`")
 
 ---
 
@@ -241,3 +252,20 @@ The first argument is the shared game object. The second argument is the coin ob
 `0x9d233fe1481b001c34a2f13893b87046cf1d0570` argument is the nft id.
 `1678367370` is the Unix timestamp returned by the server.
 The last parameter is the signature returned by the server.
+
+---
+
+## Sui tutorials
+The list of references used in the writing of these smartcontracts:
+
+* https://github.com/MystenLabs/sui &ndash; source code with all links to start to work with Sui blockchain.
+* https://docs.sui.io/devnet/explore &ndash; primary hub of the documentations.
+* https://github.com/MystenLabs/sui/blob/main/doc/src/explore/examples.md &ndash; primary hub of the examples.
+* https://github.com/MystenLabs/sui/blob/main/sui_programmability/examples/nfts/sources/marketplace.move &ndash; NFT marketplace, used to see how to import/export NFT into MiniMiners game smartcontract.
+* https://github.com/MystenLabs/sui-axelar/blob/2a0f17ab8efdb8ebc6bca753328180a02f6fcf6e/presets/index.js#L108 &ndash; example on how to generate the signatures offchain, then verifying them on-chain using `ecrecover` function.
+* https://github.com/MystenLabs/sui/tree/main/sdk/typescript/ &ndash; the SDK to interact with Sui blockchain from Node.js and browser backends.
+* https://move-language.github.io/move/vector.html &ndash; Move programming language book. The link is the page describing array like data structures: vectors.
+* https://github.com/MystenLabs/sui/blob/main/doc/src/build/install.md#sui-tokens &ndash; How to obtain devnet SUI token.
+* https://explorer.sui.io/ &ndash; explore the blocks and transactions.
+* https://github.com/move-language/move/tree/main/language/documentation/tutorial &ndash; official tutorial on move programming language.
+* https://github.com/MystenLabs/awesome-move#move-powered-blockchains &ndash; list of useful recource collection related to Move programming language.
