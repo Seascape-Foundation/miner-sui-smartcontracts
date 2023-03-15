@@ -8,40 +8,8 @@
 module mini_miners::verifier {
     use sui::ecdsa_k1;
     use sui::hash;
-    use sui::event;
-    use sui::object::{Self, UID};
-    use sui::tx_context::TxContext;
-    use sui::transfer;
     use std::vector;
     use sui::address;
-    /// Event on whether the signature is verified
-    struct VerifiedEvent has copy, drop {
-        is_verified: bool,
-    }
-
-    /// Object that holds the output data
-    struct Output has key, store {
-        id: UID,
-        value: vector<u8>
-    }
-
-    public entry fun keccak256(data: vector<u8>, recipient: address, ctx: &mut TxContext) {
-        let hashed = Output {
-            id: object::new(ctx),
-            value: hash::keccak256(&data),
-        };
-        // Transfer an output data object holding the hashed data to the recipient.
-        transfer::transfer(hashed, recipient)
-    }
-
-    public entry fun ecrecover(signature: vector<u8>, hashed_msg: vector<u8>, recipient: address, ctx: &mut TxContext) {
-        let pubkey = Output {
-            id: object::new(ctx),
-            value: ecdsa_k1::ecrecover(&signature, &hashed_msg),
-        };
-        // Transfer an output data object holding the pubkey to the recipient.
-        transfer::transfer(pubkey, recipient)
-    }
 
     public fun ecrecover_to_eth_address(signature: vector<u8>, hashed_msg: vector<u8>): address {
         // Normalize the last byte of the signature to be 0 or 1.
@@ -77,9 +45,5 @@ module mini_miners::verifier {
         };
 
         address::from_bytes(addr)
-    }
-
-    public entry fun secp256k1_verify(signature: vector<u8>, public_key: vector<u8>, hashed_msg: vector<u8>) {
-        event::emit(VerifiedEvent {is_verified: ecdsa_k1::secp256k1_verify(&signature, &public_key, &hashed_msg)});
     }
 }
