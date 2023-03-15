@@ -80,7 +80,7 @@ Run the tests
 
 ---
 
-#Deploy
+# Deploy
 
 > :bulb: You may need SUI token to publish or call functions.
 > To obtain a gas for devnet check out https://docs.sui.io/build/faucet
