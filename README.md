@@ -118,7 +118,7 @@ In the repository of the sync bot, update the `config/config.json`
 
 ---
 
-####Mint new MineNFTs
+#### Mint new MineNFTs
 *Can be called by the owner of `NftFactory` object.*
 *By default its the publisher of the package.*
 
