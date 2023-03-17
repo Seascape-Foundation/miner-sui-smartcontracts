@@ -102,6 +102,31 @@ Then add to the command another argument after `--abi`:
 Upon successful publishing, the console output will show
 Transaction Hash. Then we need to update the game backend to work with the newly published data.
 
+Also we need to set the verifier.
+
+### Verifier
+SUI blockchain uses different algorithm than Ethereum. However we can derive the Sui keys from Ethereum keys.
+After all, Sui smartcontracts provide `ecrecover` identical as in the Ethereum Virtual Machines.
+
+> :bulb: **Tip**
+> The most easiest way to get Ethereum address from SUI private key, its better to load the private key into the Ethereum wallet.
+
+> :warning: Only smartcontract owner can set the Verifier
+
+```powershell
+sui client call `
+--function set_verifier `
+--module game `
+--package 0x8703ea390380923722794a76ab14973a24ac90a8 `
+--gas-budget 1000 `
+--args `
+  0xa824a2b14121d491fc195dbc157b6a97a74a3baa `
+  0xeb3b05ca37ae926fc8d0a2115ca0903800a502f8
+```
+
+The first argument is the `Game` object's resource id.
+The second argument is the verifier's Ethereum wallet address.
+
 ### Update the game backend
 Go to the explorer, to the page of the transaction.
 The explorer will show the list of the created objects.
