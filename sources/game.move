@@ -11,7 +11,6 @@ module mini_miners::game {
     use sui::tx_context::{Self, TxContext};
     use sui::coin::{Self, Coin};
     use sui::event;
-    use sui::hash;
 
     const ENotOwner: u64 = 1;
     const EAmountIncorrect: u64 = 2;
@@ -128,8 +127,7 @@ module mini_miners::game {
             timestamp: timestamp,
         };
         let import_nft_bytes = bcs::to_bytes(&import_nft_message);
-        let import_nft_hash = hash::keccak256(&import_nft_bytes);
-        let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_hash);
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_bytes);
         assert!(game.verifier == recovered_address, ESigFail);
 
         let params = PlayerParams {
@@ -203,7 +201,7 @@ module mini_miners::game {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
 
-        let sell_gold_message = PackMessage {
+        let message = PackMessage {
             prefix: SELL_PACK_PREFIX,
             token_amount: token_amount,
             pack_id: pack_id,
@@ -211,9 +209,8 @@ module mini_miners::game {
             owner: player,
             timestamp: timestamp,
         };
-        let message_bytes = bcs::to_bytes(&sell_gold_message);
-        let message_hash = hash::keccak256(&message_bytes);
-        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_hash);
+        let message_bytes = bcs::to_bytes(&message);
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_bytes);
         assert!(game.verifier == recovered_address, ESigFail);
 
         assert!(dynamic_object_field::exists_<address>(&game.id, collector), ENotEnoughFunds);
@@ -235,7 +232,7 @@ module mini_miners::game {
         let token_amount = coin::value(&paid);
         let player = tx_context::sender(ctx);
 
-        let sell_gold_message = PackMessage {
+        let message = PackMessage {
             prefix: BUY_PACK_PREFIX,
             token_amount: token_amount,
             pack_id: pack_id,
@@ -243,9 +240,8 @@ module mini_miners::game {
             owner: player,
             timestamp: timestamp,
         };
-        let message_bytes = bcs::to_bytes(&sell_gold_message);
-        let message_hash = hash::keccak256(&message_bytes);
-        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_hash);
+        let message_bytes = bcs::to_bytes(&message);
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_bytes);
         assert!(game.verifier == recovered_address, ESigFail);
 
         transfer::transfer(paid, game.collector);

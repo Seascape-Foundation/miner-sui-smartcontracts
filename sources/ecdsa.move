@@ -11,7 +11,7 @@ module mini_miners::verifier {
     use std::vector;
     use sui::address;
 
-    public fun ecrecover_to_eth_address(signature: vector<u8>, hashed_msg: vector<u8>): address {
+    public fun ecrecover_to_eth_address(signature: vector<u8>, msg: vector<u8>): address {
         // Normalize the last byte of the signature to be 0 or 1.
         let v = vector::borrow_mut(&mut signature, 64);
         if (*v == 27) {
@@ -22,7 +22,10 @@ module mini_miners::verifier {
             *v = (*v - 1) % 2;
         };
 
-        let pubkey = ecdsa_k1::ecrecover(&signature, &hashed_msg);
+        // keccak256 constant = 0 
+        // ecdsa_r1::KECCAK256
+        // https://github.com/MystenLabs/sui/blob/main/crates/sui-framework/docs/ecdsa_r1.md
+        let pubkey = ecdsa_k1::secp256k1_ecrecover(&signature, &msg, 0);
         let uncompressed = ecdsa_k1::decompress_pubkey(&pubkey);
 
         // Take the last 64 bytes of the uncompressed pubkey.
