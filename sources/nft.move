@@ -173,11 +173,11 @@ module mini_miners::mine_nft {
     }
 
     // transfer ownership over the nft management
-    public entry fun transfer_ownership(info: Info, recipient: address, ctx: &mut TxContext) {
+    public entry fun transfer_ownership(info: &mut Info, recipient: address, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
         assert!(sender == info.owner, ENotOwner);
 
-        transfer::transfer(info, recipient);
+        info.owner = recipient;
 
         event::emit(TransferOwnership {owner: recipient});
     }
