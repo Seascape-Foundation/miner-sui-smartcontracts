@@ -168,7 +168,7 @@ module mini_miners::game {
         ctx: &mut TxContext
     ) {
         let item = export_nft<T>(game, item_id, ctx);
-        transfer::transfer(item, tx_context::sender(ctx));
+        transfer::public_transfer(item, tx_context::sender(ctx));
 
         event::emit(NftExported{nft_id: item_id, owner: tx_context::sender(ctx)});
     }
@@ -221,7 +221,7 @@ module mini_miners::game {
             ctx
         );
 
-        transfer::transfer(borrowed_coin, player);
+        transfer::public_transfer(borrowed_coin, player);
 
         event::emit(SellPack{player, token_amount, pack_id: pack_id})
     }
@@ -244,7 +244,7 @@ module mini_miners::game {
         let recovered_address = verifier::ecrecover_to_eth_address(signature, message_bytes);
         assert!(game.verifier == recovered_address, ESigFail);
 
-        transfer::transfer(paid, game.collector);
+        transfer::public_transfer(paid, game.collector);
 
         let player = tx_context::sender(ctx);
 
@@ -303,7 +303,7 @@ module mini_miners::game {
             ctx
         );
 
-        transfer::transfer(borrowed_coin, player);
+        transfer::public_transfer(borrowed_coin, player);
 
         event::emit(SellPack{player, token_amount, pack_id: pack_id})
     }
@@ -313,7 +313,7 @@ module mini_miners::game {
         let token_amount = coin::value(&paid);
         let player = tx_context::sender(ctx);
 
-        transfer::transfer(paid, game.collector);
+        transfer::public_transfer(paid, game.collector);
 
         event::emit(BuyPack{player, token_amount, pack_id})
     }
@@ -337,7 +337,7 @@ module mini_miners::game {
         test_scenario::next_tx(scenario, collector);
         {
             let coin = coin::mint_for_testing<SUI>(1000, test_scenario::ctx(scenario));
-            transfer::transfer(coin, collector);
+            transfer::public_transfer(coin, collector);
         };
 
         // mint some nft for the user
@@ -388,14 +388,14 @@ module mini_miners::game {
         test_scenario::next_tx(scenario, collector);
         {
             let coin = coin::mint_for_testing<SUI>(1000, test_scenario::ctx(scenario));
-            transfer::transfer(coin, collector);
+            transfer::public_transfer(coin, collector);
         };
 
         // let's mint some SUI coins for the player
         test_scenario::next_tx(scenario, player);
         {
             let coin = coin::mint_for_testing<SUI>(1000, test_scenario::ctx(scenario));
-            transfer::transfer(coin, player);
+            transfer::public_transfer(coin, player);
         };
 
         // we send some coins to the smartcontract
