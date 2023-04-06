@@ -148,6 +148,8 @@ module mini_miners::game {
         item_id: ID,
         ctx: &mut TxContext
     ): T {
+        assert!(dynamic_object_field::exists_with_type<ID, PlayerParams>(&game.id, item_id), 0);
+
         let PlayerParams {
             id,
             owner,
