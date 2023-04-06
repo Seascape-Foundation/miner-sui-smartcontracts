@@ -11,8 +11,7 @@ It requires [sui](https://sui.io/) to be installed on your machine.
 If you didn't install sui, install it using:
 
 ```powershell
-cargo install --git https://github.com/MystenLabs/sui.git `
- --branch testnet sui --force
+cargo install --locked --git https://github.com/MystenLabs/sui.git --branch devnet sui
 ```
 
 Upon installation complete, type on terminal:
