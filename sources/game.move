@@ -11,6 +11,7 @@ module mini_miners::game {
     use sui::tx_context::{Self, TxContext};
     use sui::coin::{Self, Coin};
     use sui::event;
+    use std::type_name;
 
     const ENotOwner: u64 = 1;
     const EAmountIncorrect: u64 = 2;
@@ -46,6 +47,7 @@ module mini_miners::game {
     struct PackMessage has drop {
         prefix: vector<u8>,
         token_amount: u64,
+        coin_type: type_name::TypeName,
         pack_id: u8,
         game: address,
         owner: address,
@@ -206,6 +208,7 @@ module mini_miners::game {
         let message = PackMessage {
             prefix: SELL_PACK_PREFIX,
             token_amount: token_amount,
+            coin_type: type_name::get<COIN>(),
             pack_id: pack_id,
             game: object::id_address(game),
             owner: player,
@@ -237,6 +240,7 @@ module mini_miners::game {
         let message = PackMessage {
             prefix: BUY_PACK_PREFIX,
             token_amount: token_amount,
+            coin_type: type_name::get<COIN>(),
             pack_id: pack_id,
             game: object::id_address(game),
             owner: player,
