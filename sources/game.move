@@ -94,6 +94,10 @@ module mini_miners::game {
         recepient: vector<u8>,
     }
 
+    struct Checkin has copy, drop {
+        player: address,
+    }
+
     // Upon deployment, we create a shared nonce
     fun init(ctx: &mut TxContext) {
         let owner = tx_context::sender(ctx);
@@ -256,6 +260,19 @@ module mini_miners::game {
 
         event::emit(BuyPack{player, token_amount, pack_id})
     }
+
+    /////////////////////////////////////////////////////////////////////
+    //
+    // Sui specific
+    //
+    /////////////////////////////////////////////////////////////////////
+
+    public entry fun checkin(
+        ctx: &mut TxContext
+    ) {
+        event::emit(Checkin{player: tx_context::sender(ctx)})
+    }
+
     
     /////////////////////////////////////////////////////////////////////
     //
