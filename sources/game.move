@@ -329,8 +329,9 @@ module mini_miners::game {
         use sui::test_scenario;
         use sui::sui::SUI;
         use std::debug;
+        use std::string;
 
-        let collector: address = @0xBABE;
+        let collector: address = @0x84818b44cb33fae71f25ca9aa3d8aed0aadbc87f784f0f6eccbce02bb2217742;
 
         // first we create the game object
         let scenario_val = test_scenario::begin(collector);
