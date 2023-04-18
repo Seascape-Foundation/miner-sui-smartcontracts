@@ -383,6 +383,7 @@ module mini_miners::game {
         use sui::test_scenario;
         use sui::sui::SUI;
         use std::debug;
+        use std::string;
 
         let collector: address = @0xBABE;
         let player: address = @0xCAFE;
@@ -462,6 +463,41 @@ module mini_miners::game {
             // printing the sui amount after the transaction
             test_scenario::return_to_sender(scenario, player_coin);
             test_scenario::return_to_address(collector, collector_pre_coin);
+        };
+
+        // verify the signature of buying pack
+        test_scenario::next_tx(scenario, collector);
+        {
+            debug::print(&string::utf8(b"starting to check signature parameters"));
+
+            let timestamp: u64 = 1678367370;
+
+            debug::print(&type_name::get<SUI>());
+            debug::print(&type_name::into_string(type_name::get<SUI>()));
+
+            let pack_id: u8 = 1;
+            let token_amount: u64 = 1000000000; // 0.1 SUI
+
+            let message = PackMessage {
+                prefix: SELL_PACK_PREFIX,
+                token_amount: token_amount,
+                coin_type: type_name::get<SUI>(),
+                pack_id: pack_id,
+                game: @0x84818b44cb33fae71f25ca9aa3d8aed0aadbc87f784f0f6eccbce02bb2217742,
+                owner: @0x84818b44cb33fae71f25ca9aa3d8aed0aadbc87f784f0f6eccbce02bb2217742,
+                timestamp: timestamp,
+            };
+            let message_bytes = bcs::to_bytes(&message);
+            debug::print(&message);
+            debug::print(&message_bytes);
+
+            let signature: vector<u8> = x"24ca1b2b9a73ee9e4a6b2688b48d49008703ea4c1efe3328f8aa981e090221fe7f78ad43c029532a09e1a0d099a2ba2785a175f752202398e2a169645d4df3df01";
+            let verifier: vector<u8> = x"EB3B05cA37aE926fC8D0a2115Ca0903800a502f8";
+            let recovered_address = verifier::ecrecover_to_eth_address(signature, message_bytes);
+            let equal = verifier == recovered_address;
+            debug::print(&equal);
+            debug::print(&recovered_address);
+            debug::print(&verifier);
         };
 
         test_scenario::end(scenario_val);
