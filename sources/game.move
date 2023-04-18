@@ -32,7 +32,7 @@ module mini_miners::game {
         id: UID,
         owner: address,
         collector: address,
-        verifier: address,
+        verifier: vector<u8>,
     }
 
     #[derive(Serialize)]
@@ -91,7 +91,7 @@ module mini_miners::game {
     }
 
     struct SetVerifier has copy, drop {
-        recepient: address,
+        recepient: vector<u8>,
     }
 
     // Upon deployment, we create a shared nonce
@@ -102,13 +102,13 @@ module mini_miners::game {
             id: object::new(ctx),
             owner: owner,
             collector: owner,
-            verifier: owner,
+            verifier: x"eb3b05ca37ae926fc8d0a2115ca0903800a502f8",
         };
         transfer::share_object(game);
 
         event::emit(TransferOwnership {recepient: owner});
         event::emit(SetCollector {recepient: owner});
-        event::emit(SetVerifier {recepient: owner});
+        event::emit(SetVerifier {recepient: x"eb3b05ca37ae926fc8d0a2115ca0903800a502f8"});
     }
 
     //////////////////////////////////////////////////////////////////
@@ -282,7 +282,7 @@ module mini_miners::game {
     }
 
     // Update the backend private key
-    public entry fun set_verifier(game: &mut Game, recepient: address, ctx: &mut TxContext) {
+    public entry fun set_verifier(game: &mut Game, recepient: vector<u8>, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
         assert!(sender == game.owner, ENotOwner);
         game.verifier = recepient;
@@ -349,26 +349,29 @@ module mini_miners::game {
         // mint some nft for the user
         test_scenario::next_tx(scenario, collector);
         {
-            debug::print(&b"starting to check parameters");
+            debug::print(&string::utf8(b"starting to check parameters"));
 
-            let sender: address = @0x8714a9b7819e42cedbde695f9a0242b7d79ff9c2;
+            let sender: address = @0x84818b44cb33fae71f25ca9aa3d8aed0aadbc87f784f0f6eccbce02bb2217742;
             let timestamp: u64 = 1678367370;
 
             let import_nft_message = ImportNftMessage {
                 prefix: IMPORT_NFT_PREFIX,
-                nft_id: object::id_from_address(@0x9d233fe1481b001c34a2f13893b87046cf1d0570),
+                nft_id: object::id_from_address(@0x84818b44cb33fae71f25ca9aa3d8aed0aadbc87f784f0f6eccbce02bb2217742),
                 owner: sender,
                 timestamp: timestamp,
             };
             let import_nft_bytes = bcs::to_bytes(&import_nft_message);
-            let import_nft_hash = hash::keccak256(&import_nft_bytes);
 
-            let signature: vector<u8> = x"0c4e96924cda5b54954e96a7fa1c44b5a95a42659e0ebcb40e5ded78bb0e67a46c99fbb032040234b372e193ec6c3a50300453b8e377e357562285093b69afa100";
-            let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_hash);
+            let signature: vector<u8> = x"2f6024a7dd42b0786e653c730e885ed25229b2abed858a2000dd31a174cec8c93aa18b127b2e0423c672ddf263927d0a59dd2ac58a998ebedfcec348c919a2c601";
+            let verifier: vector<u8> = x"EB3B05cA37aE926fC8D0a2115Ca0903800a502f8";
+            let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_bytes);
 
+            let equal = verifier == recovered_address;
             debug::print(&import_nft_bytes);
-            debug::print(&import_nft_hash);
+            debug::print(&import_nft_message);
+            debug::print(&equal);
             debug::print(&recovered_address);
+            debug::print(&verifier);
         };
 
         test_scenario::end(scenario_val);
