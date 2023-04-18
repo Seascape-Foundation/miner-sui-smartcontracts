@@ -89,7 +89,7 @@ module mini_miners::mine_nft {
         event::emit(TransferOwnership {owner: owner});
     }
 
-    public fun add_minter(info: &mut Info, recepient: address, ctx: &mut TxContext) {
+    public entry fun add_minter(info: &mut Info, recepient: address, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
         assert!(sender == info.owner, ENotOwner);
 
