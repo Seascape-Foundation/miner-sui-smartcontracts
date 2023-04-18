@@ -370,17 +370,17 @@ module mini_miners::game {
             debug::print(&string::utf8(b"starting to check parameters"));
 
             let sender: address = @0x84818b44cb33fae71f25ca9aa3d8aed0aadbc87f784f0f6eccbce02bb2217742;
-            let timestamp: u64 = 1678367370;
+            let timestamp: u64 = 1681830785;
 
             let import_nft_message = ImportNftMessage {
                 prefix: IMPORT_NFT_PREFIX,
-                nft_id: object::id_from_address(@0x84818b44cb33fae71f25ca9aa3d8aed0aadbc87f784f0f6eccbce02bb2217742),
+                nft_id: object::id_from_address(@0x59078ead25bee396ed7c971abe359d0c91a386bd61dab760af2ba0b353208941),
                 owner: sender,
                 timestamp: timestamp,
             };
             let import_nft_bytes = bcs::to_bytes(&import_nft_message);
 
-            let signature: vector<u8> = x"2f6024a7dd42b0786e653c730e885ed25229b2abed858a2000dd31a174cec8c93aa18b127b2e0423c672ddf263927d0a59dd2ac58a998ebedfcec348c919a2c601";
+            let signature: vector<u8> = x"47d7a769dbe9dec47c8fa954f24e849685be8304939d55d7f5b5dc3ab47a88c96a6fadb677cad34b2bd241a0a0ac768ce38306d432d34f69d29664fdba9eded200";
             let verifier: vector<u8> = x"EB3B05cA37aE926fC8D0a2115Ca0903800a502f8";
             let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_bytes);
 
