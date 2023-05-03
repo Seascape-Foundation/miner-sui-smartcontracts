@@ -158,7 +158,7 @@ module mini_miners::game {
     }
 
     // Export the nft back to the user.
-    public fun export_nft<T: key + store>(
+    fun export_nft<T: key + store>(
         game: &mut Game,
         item_id: ID,
         ctx: &mut TxContext
@@ -293,7 +293,6 @@ module mini_miners::game {
         event::emit(Checkin{player: sender, timestamp: timestamp})
     }
 
-    
     /////////////////////////////////////////////////////////////////////
     //
     // The Game owner functions
