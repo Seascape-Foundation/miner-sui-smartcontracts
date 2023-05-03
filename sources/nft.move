@@ -11,10 +11,14 @@ module mini_miners::mine_nft {
     use sui::transfer;
     use sui::tx_context::{Self, TxContext};
     use sui::dynamic_object_field;
+    use sui::bcs;
+    use mini_miners::verifier;
 
     const ENotMinter: u64 = 1;
     const ENotOwner: u64 = 1;
     const EMinterExists: u64 = 2;
+    const ESigFail: u64 = 4;
+
     const NFT_NAME: vector<u8> = b"MINES";
 
     struct Mine has key, store {
@@ -30,11 +34,22 @@ module mini_miners::mine_nft {
         id: UID,
         base_uri: vector<u8>,
         owner: address,
+        verifier: vector<u8>,
     }
 
     struct Minter has key, store {
         id: UID,
     }
+
+    #[derive(Serialize)]
+    struct MintNftMessage has drop {
+        minter: vector<u8>, // the minter game name
+        owner: address,
+        timestamp: u64,
+        generation: u64,
+        quality: u64,
+    }
+
 
     ////////////////////////////////////////////////
     //
@@ -71,6 +86,17 @@ module mini_miners::mine_nft {
         value: vector<u8>,
     }
 
+    struct SetVerifier has copy, drop {
+        recepient: vector<u8>,
+    }
+
+    struct NftMintedBy has copy, drop {
+        minter: vector<u8>,
+        player: address,
+        generation: u64,
+        quality: u64,
+    }
+
     fun init(ctx: &mut TxContext) {
         let owner = tx_context::sender(ctx);
 
@@ -78,6 +104,7 @@ module mini_miners::mine_nft {
             id: object::new(ctx),
             base_uri: b"https://sui-api.miniminersgame.com/meta/",
             owner: owner,
+            verifier: x"eb3b05ca37ae926fc8d0a2115ca0903800a502f8",
         };
 
         add_minter(&mut info, owner, ctx);
@@ -89,6 +116,8 @@ module mini_miners::mine_nft {
         event::emit(TransferOwnership {owner: owner});
     }
 
+    // Grants the permission to recepient to mint new NFTs.
+    // info Object contains the owner information. Only Owner can call this function.
     public entry fun add_minter(info: &mut Info, recepient: address, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
         assert!(sender == info.owner, ENotOwner);
@@ -116,16 +145,8 @@ module mini_miners::mine_nft {
         event::emit(DeleteMinter {minter: recepient});
     }
 
-    // todo test passing management from non-deployer
-    // todo check the url
-    // mint a new nft
-    public entry fun mint(info: &Info, recipient: address, generation: u64, quality: u64, ctx: &mut TxContext) {
-        let sender = tx_context::sender(ctx);
-        assert!(dynamic_object_field::exists_with_type<address, Minter>(&info.id, sender), ENotMinter);
-
+    fun mint_internal(info: &Info, recipient: address, generation: u64, quality: u64, ctx: &mut TxContext) {
         let id = object::new(ctx);
-
-
         let id_address = object::uid_to_address(&id);
         let id_string = address::to_string(id_address);
         let token_url = string::utf8(info.base_uri);
@@ -147,6 +168,44 @@ module mini_miners::mine_nft {
         });
 
         transfer::transfer(mine, recipient);
+    }
+
+    // mint a new nft
+    public entry fun mint(info: &Info, recipient: address, generation: u64, quality: u64, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(dynamic_object_field::exists_with_type<address, Minter>(&info.id, sender), ENotMinter);
+
+        mint_internal(info, recipient, generation, quality, ctx);
+    }
+
+    // mint a new nft
+    public entry fun mint_by(info: &Info, recipient: address, generation: u64, quality: u64, timestamp: u64, signature: vector<u8>, minter: vector<u8>, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+
+        let message = MintNftMessage {
+            minter: minter,
+            owner: sender,
+            timestamp: timestamp,
+            generation: generation,
+            quality: quality,
+        };
+
+        let message_bytes = bcs::to_bytes(&message);
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_bytes);
+        assert!(info.verifier == recovered_address, ESigFail);
+
+        mint_internal(info, recipient, generation, quality, ctx);
+
+        event::emit(NftMintedBy{minter: minter, player: sender, generation: generation, quality: quality})
+    }
+
+    // Update the backend private key
+    public entry fun set_verifier(info: &mut Info, recepient: vector<u8>, ctx: &mut TxContext) {
+        let sender = tx_context::sender(ctx);
+        assert!(sender == info.owner, ENotOwner);
+        info.verifier = recepient;
+
+        event::emit(SetVerifier {recepient: recepient});
     }
 
     #[test_only]
