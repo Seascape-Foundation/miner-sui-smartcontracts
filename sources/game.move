@@ -21,6 +21,7 @@ module mini_miners::game {
     const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
     const SELL_PACK_PREFIX: vector<u8> = b"sell_miner_pack";
     const BUY_PACK_PREFIX: vector<u8> = b"buy_miner_pack";
+    const CHECKIN_PREFIX: vector<u8> = b"miner_checkin";
 
     struct PlayerParams has key, store {
         id: UID,
@@ -50,6 +51,13 @@ module mini_miners::game {
         coin_type: type_name::TypeName,
         pack_id: u8,
         game: address,
+        owner: address,
+        timestamp: u64,
+    }
+
+    #[derive(Serialize)]
+    struct CheckinMessage has drop {
+        prefix: vector<u8>,
         owner: address,
         timestamp: u64,
     }
@@ -96,6 +104,7 @@ module mini_miners::game {
 
     struct Checkin has copy, drop {
         player: address,
+        timestamp: u64,
     }
 
     // Upon deployment, we create a shared nonce
@@ -267,10 +276,21 @@ module mini_miners::game {
     //
     /////////////////////////////////////////////////////////////////////
 
-    public entry fun checkin(
-        ctx: &mut TxContext
+    public entry fun checkin(game: &mut Game, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext
     ) {
-        event::emit(Checkin{player: tx_context::sender(ctx)})
+        let sender = tx_context::sender(ctx);
+
+        let message = CheckinMessage {
+            prefix: CHECKIN_PREFIX,
+            owner: sender,
+            timestamp: timestamp,
+        };
+
+        let message_bytes = bcs::to_bytes(&message);
+        let recovered_address = verifier::ecrecover_to_eth_address(signature, message_bytes);
+        assert!(game.verifier == recovered_address, ESigFail);
+
+        event::emit(Checkin{player: sender, timestamp: timestamp})
     }
 
     
