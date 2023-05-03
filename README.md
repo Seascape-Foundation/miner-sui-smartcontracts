@@ -123,8 +123,26 @@ sui client call `
   0xeb3b05ca37ae926fc8d0a2115ca0903800a502f8
 ```
 
-The first argument is the `Game` object's resource id.
-The second argument is the verifier's Ethereum wallet address.
+### Mint by [permission]
+The mine_nft could be minted by the permission.
+But the permission is granted from the server.
+Therefore, we set the mine_nft's verifier:
+
+> :warning: Only smartcontract owner can set the verifier
+
+```powershell
+sui client call `
+--function set_verifier `
+--module mine_nft `
+--package 0x8703ea390380923722794a76ab14973a24ac90a8 `
+--gas-budget 1000 `
+--args `
+  0xa824a2b14121d491fc195dbc157b6a97a74a3baa `
+  0xeb3b05ca37ae926fc8d0a2115ca0903800a502f8
+```
+
+The first argument is the `Info` object's resource id.
+The second argument is the Game object's address's Ethereum wallet address.
 
 ### Update the game backend
 Go to the explorer, to the page of the transaction.
