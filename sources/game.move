@@ -115,13 +115,13 @@ module mini_miners::game {
             id: object::new(ctx),
             owner: owner,
             collector: owner,
-            verifier: x"eb3b05ca37ae926fc8d0a2115ca0903800a502f8",
+            verifier: x"3b1a85602794135BC124a5464C9989b888098777",
         };
         transfer::share_object(game);
 
         event::emit(TransferOwnership {recepient: owner});
         event::emit(SetCollector {recepient: owner});
-        event::emit(SetVerifier {recepient: x"eb3b05ca37ae926fc8d0a2115ca0903800a502f8"});
+        event::emit(SetVerifier {recepient: x"3b1a85602794135BC124a5464C9989b888098777"});
     }
 
     //////////////////////////////////////////////////////////////////

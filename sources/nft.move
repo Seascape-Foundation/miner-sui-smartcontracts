@@ -104,7 +104,7 @@ module mini_miners::mine_nft {
             id: object::new(ctx),
             base_uri: b"https://sui-api.miniminersgame.com/meta/",
             owner: owner,
-            verifier: x"eb3b05ca37ae926fc8d0a2115ca0903800a502f8",
+            verifier: x"3b1a85602794135BC124a5464C9989b888098777",
         };
 
         add_minter(&mut info, owner, ctx);
