@@ -5,7 +5,7 @@ license = "MPL 2.0"
 authors = ["Medet Ahmetson (admin@blocklords.io)"]
 
 [dependencies]
-Sui = { git = "https://github.com/MystenLabs/sui.git", subdir="crates/sui-framework/packages/sui-framework/", rev = "testnet" }
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir="crates/sui-framework/packages/sui-framework/", rev = "mainnet" }
 
 [addresses]  
 mini_miners = "0x0"
