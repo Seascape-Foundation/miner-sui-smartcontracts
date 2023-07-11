@@ -17,16 +17,23 @@ module mini_miners::game {
     const EAmountIncorrect: u64 = 2;
     const ENotEnoughFunds: u64 = 3;
     const ESigFail: u64 = 4;
+    const ESigTimestamp: u64 = 5;
 
     const IMPORT_NFT_PREFIX: vector<u8> = b"import_miner_nft";
     const SELL_PACK_PREFIX: vector<u8> = b"sell_miner_pack";
     const BUY_PACK_PREFIX: vector<u8> = b"buy_miner_pack";
     const CHECKIN_PREFIX: vector<u8> = b"miner_checkin";
 
+    // PlayerParams is used for the nft import export
     struct PlayerParams has key, store {
         id: UID,
         owner: address,
         stake_time: u64
+    }
+
+    struct ReentrancyGuard has key, store {
+        id: UID,
+        timestamp: u64
     }
 
     struct Game has key {
@@ -135,12 +142,26 @@ module mini_miners::game {
         let nft_id = object::id(&item);
         let sender = tx_context::sender(ctx);
         
+        let reentrancy_guard: ReentrancyGuard;
+        if (dynamic_object_field::exists_with_type<address, ReentrancyGuard>(&game.id, sender)) {
+            reentrancy_guard = dynamic_object_field::remove<address, ReentrancyGuard>(&mut game.id, sender);
+            assert!(timestamp > reentrancy_guard.timestamp, ESigTimestamp);
+        } else {
+            reentrancy_guard = ReentrancyGuard {
+                id: object::new(ctx),
+                timestamp: timestamp,
+            }
+        };
+        dynamic_object_field::add(&mut game.id, sender, reentrancy_guard);
+
         let import_nft_message = ImportNftMessage {
             prefix: IMPORT_NFT_PREFIX,
             nft_id: nft_id,
             owner: sender,
             timestamp: timestamp,
         };
+
+
         let import_nft_bytes = bcs::to_bytes(&import_nft_message);
         let recovered_address = verifier::ecrecover_to_eth_address(signature, import_nft_bytes);
         assert!(game.verifier == recovered_address, ESigFail);
@@ -218,6 +239,19 @@ module mini_miners::game {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
 
+        let reentrancy_guard: ReentrancyGuard;
+        if (dynamic_object_field::exists_with_type<address, ReentrancyGuard>(&game.id, player)) {
+            reentrancy_guard = dynamic_object_field::remove<address, ReentrancyGuard>(&mut game.id, player);
+            assert!(timestamp > reentrancy_guard.timestamp, ESigTimestamp);
+        } else {
+            reentrancy_guard = ReentrancyGuard {
+                id: object::new(ctx),
+                timestamp: timestamp,
+            }
+        };
+        dynamic_object_field::add(&mut game.id, player, reentrancy_guard);
+
+
         let message = PackMessage {
             prefix: SELL_PACK_PREFIX,
             token_amount: token_amount,
@@ -250,6 +284,18 @@ module mini_miners::game {
         let token_amount = coin::value(&paid);
         let player = tx_context::sender(ctx);
 
+        let reentrancy_guard: ReentrancyGuard;
+        if (dynamic_object_field::exists_with_type<address, ReentrancyGuard>(&game.id, player)) {
+            reentrancy_guard = dynamic_object_field::remove<address, ReentrancyGuard>(&mut game.id, player);
+            assert!(timestamp > reentrancy_guard.timestamp, ESigTimestamp);
+        } else {
+            reentrancy_guard = ReentrancyGuard {
+                id: object::new(ctx),
+                timestamp: timestamp,
+            }
+        };
+        dynamic_object_field::add(&mut game.id, player, reentrancy_guard);
+
         let message = PackMessage {
             prefix: BUY_PACK_PREFIX,
             token_amount: token_amount,
@@ -279,6 +325,18 @@ module mini_miners::game {
     public entry fun checkin(game: &mut Game, timestamp: u64, signature: vector<u8>, ctx: &mut TxContext
     ) {
         let sender = tx_context::sender(ctx);
+
+        let reentrancy_guard: ReentrancyGuard;
+        if (dynamic_object_field::exists_with_type<address, ReentrancyGuard>(&game.id, sender)) {
+            reentrancy_guard = dynamic_object_field::remove<address, ReentrancyGuard>(&mut game.id, sender);
+            assert!(timestamp > reentrancy_guard.timestamp, ESigTimestamp);
+        } else {
+            reentrancy_guard = ReentrancyGuard {
+                id: object::new(ctx),
+                timestamp: timestamp,
+            }
+        };
+        dynamic_object_field::add(&mut game.id, sender, reentrancy_guard);
 
         let message = CheckinMessage {
             prefix: CHECKIN_PREFIX,
