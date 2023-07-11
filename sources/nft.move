@@ -18,6 +18,7 @@ module mini_miners::mine_nft {
     const ENotOwner: u64 = 1;
     const EMinterExists: u64 = 2;
     const ESigFail: u64 = 4;
+    const ESigTimestamp: u64 = 5;
 
     const NFT_NAME: vector<u8> = b"MINES";
 
@@ -39,6 +40,11 @@ module mini_miners::mine_nft {
 
     struct Minter has key, store {
         id: UID,
+    }
+
+    struct ReentrancyGuard has key, store {
+        id: UID,
+        timestamp: u64
     }
 
     #[derive(Serialize)]
@@ -179,8 +185,20 @@ module mini_miners::mine_nft {
     }
 
     // mint a new nft
-    public entry fun mint_by(info: &Info, recipient: address, generation: u64, quality: u64, timestamp: u64, signature: vector<u8>, minter: vector<u8>, ctx: &mut TxContext) {
+    public entry fun mint_by(info: &mut Info, recipient: address, generation: u64, quality: u64, timestamp: u64, signature: vector<u8>, minter: vector<u8>, ctx: &mut TxContext) {
         let sender = tx_context::sender(ctx);
+
+        let reentrancy_guard: ReentrancyGuard;
+        if (dynamic_object_field::exists_with_type<address, ReentrancyGuard>(&info.id, sender)) {
+            reentrancy_guard = dynamic_object_field::remove<address, ReentrancyGuard>(&mut info.id, sender);
+            assert!(timestamp > reentrancy_guard.timestamp, ESigTimestamp);
+        } else {
+            reentrancy_guard = ReentrancyGuard {
+                id: object::new(ctx),
+                timestamp: timestamp,
+            }
+        };
+        dynamic_object_field::add(&mut info.id, sender, reentrancy_guard);
 
         let message = MintNftMessage {
             minter: minter,
