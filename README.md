@@ -8,6 +8,9 @@ The Smartcontracts of the [MiniMiners](https://miniminersgame.com/), the p2e ear
 # Installation
 It requires [sui](https://sui.io/) to be installed on your machine.
 
+> Refer to the official documents (because it needs some pre-requirements)
+> https://github.com/MystenLabs/sui/blob/main/doc/src/build/install.md
+
 If you didn't install sui, install it using:
 
 ```powershell
