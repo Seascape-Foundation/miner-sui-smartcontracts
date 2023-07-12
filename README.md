@@ -325,6 +325,9 @@ The last parameter is the signature returned by the server.
 
 The list of references used in the writing of these smartcontracts:
 
+* https://github.com/move-language/move/tree/main/language/move-stdlib/docs &ndash; standard library reference.
+* https://github.com/MystenLabs/sui/tree/main/crates/sui-framework/packages/sui-framework/sources &ndash; sui library source code.
+* https://github.com/MystenLabs/sui/tree/main/crates/sui-framework/docs &ndash; sui framework documentation (*some available code are not available, therefore you can browse the source code as well)*.
 * https://github.com/MystenLabs/sui &ndash; source code with all links to start to work with Sui blockchain.
 * https://docs.sui.io/devnet/explore &ndash; primary hub of the documentations.
 * https://github.com/MystenLabs/sui/blob/main/doc/src/explore/examples.md &ndash; primary hub of the examples.
