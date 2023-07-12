@@ -224,13 +224,15 @@ module mini_miners::game {
         let sender = tx_context::sender(ctx);
         assert!(sender == game.collector, ENotOwner);
 
-        if (dynamic_object_field::exists_with_type<address, Coin<COIN>>(&game.id, sender)) {
+        let coin_type = type_name::get<COIN>();
+
+        if (dynamic_object_field::exists_with_type<type_name::TypeName, Coin<COIN>>(&game.id, coin_type)) {
             coin::join(
-                dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, sender),
+                dynamic_object_field::borrow_mut<type_name::TypeName, Coin<COIN>>(&mut game.id, coin_type),
                 paid
             )
         } else {
-            dynamic_object_field::add<address, Coin<COIN>>(&mut game.id, sender, paid);
+            dynamic_object_field::add<type_name::TypeName, Coin<COIN>>(&mut game.id, coin_type, paid);
         }
     }
 
@@ -267,10 +269,12 @@ module mini_miners::game {
         let recovered_address = verifier::ecrecover_to_eth_address(signature, message_bytes);
         assert!(game.verifier == recovered_address, ESigFail);
 
-        assert!(dynamic_object_field::exists_<address>(&game.id, collector), ENotEnoughFunds);
+        let coin_type = type_name::get<COIN>();
+
+        assert!(dynamic_object_field::exists_<type_name::TypeName>(&game.id, coin_type), ENotEnoughFunds);
 
         let borrowed_coin = coin::split(
-            dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, collector),
+            dynamic_object_field::borrow_mut<type_name::TypeName, Coin<COIN>>(&mut game.id, coin_type),
             token_amount,
             ctx
         );
@@ -399,10 +403,12 @@ module mini_miners::game {
         let player = tx_context::sender(ctx);
         let collector = game.collector;
 
-        assert!(dynamic_object_field::exists_<address>(&game.id, collector), ENotEnoughFunds);
+        let coin_type = type_name::get<COIN>();
+
+        assert!(dynamic_object_field::exists_<type_name::TypeName>(&game.id, coin_type), ENotEnoughFunds);
 
         let borrowed_coin = coin::split(
-            dynamic_object_field::borrow_mut<address, Coin<COIN>>(&mut game.id, collector),
+            dynamic_object_field::borrow_mut<type_name::TypeName, Coin<COIN>>(&mut game.id, coin_type),
             token_amount,
             ctx
         );
