@@ -192,6 +192,7 @@ module mini_miners::mine_nft {
         if (dynamic_object_field::exists_with_type<address, ReentrancyGuard>(&info.id, sender)) {
             reentrancy_guard = dynamic_object_field::remove<address, ReentrancyGuard>(&mut info.id, sender);
             assert!(timestamp > reentrancy_guard.timestamp, ESigTimestamp);
+            reentrancy_guard.timestamp = timestamp;
         } else {
             reentrancy_guard = ReentrancyGuard {
                 id: object::new(ctx),
